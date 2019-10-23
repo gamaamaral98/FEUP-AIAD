@@ -22,3 +22,22 @@ money.
 * Clients
 * Companies
 * Workers
+
+
+## Behaviours
+
+Clients:
+  
+ - One Shot Behaviour: Client withdraws money from ATM if possible.
+
+ATMs:	
+
+ -  Generic Behaviour:
+	
+Companies:
+
+ -  Cyclic Behaviour: Notifies the closest worker, if he isn't available calls another one until one can do the job.
+
+Workers: 
+
+ -  One Shot Behaviour: Worker gets a job assigned, goes to the ATM to fulfill the machine.
