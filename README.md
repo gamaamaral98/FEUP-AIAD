@@ -16,3 +16,9 @@ money.
 | ATM refill amount |    Maximum ATM refill amount   |
 | Time for worker to travel to machine  | Rate of withdrawals |
 | Time to refill a machine   | Number of available workers |
+
+## Agents
+* ATMs
+* Clients
+* Companies
+* Workers
