@@ -32,7 +32,7 @@ Clients:
 
 ATMs:	
 
- -  Generic Behaviour:
+ -  Generic Behaviour: ![ATMs State Machine](Docs/Images/ATM_SM.PNG)
 	
 Companies:
 
