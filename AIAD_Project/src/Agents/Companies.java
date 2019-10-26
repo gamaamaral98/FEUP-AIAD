@@ -1,24 +1,24 @@
 package Agents;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
 
 public class Companies extends Agent {
 
     //List of workers
-    private AID[] workers = {
-            new AID("WORKER1", AID.ISLOCALNAME),
-            new AID("WORKER2", AID.ISLOCALNAME),
-            new AID("WORKER3", AID.ISLOCALNAME),
-            new AID("WORKER4", AID.ISLOCALNAME),
-            new AID("WORKER5", AID.ISLOCALNAME)
-    };
+    private AID[] workers;
 
     //List of ATMs that belong to the company
-    private AID[] ATMs = {
-            new AID("ATM1", AID.ISLOCALNAME),
-            new AID("ATM2", AID.ISLOCALNAME),
-            new AID("ATM3", AID.ISLOCALNAME)
-    };
+    private AID[] ATMs;
+
+    //ATM that needs refill
+    private AID refillATM;
+    private Integer amountNeeded;
+
+    private Integer requestWorkerFlag = 0;
+    private Integer foundWorkerFlag = 0;
 
     protected void setup() {
 
@@ -32,4 +32,5 @@ public class Companies extends Agent {
         System.out.println("Company-Agent " + getAID().getName() + " terminating");
 
     }
+
 }

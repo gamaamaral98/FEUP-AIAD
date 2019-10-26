@@ -1,6 +1,7 @@
 package Agents;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 
 /*
     Example on how to call a Client-Agent:
@@ -15,7 +16,7 @@ public class ATMs extends Agent {
     private Integer maxRefillAmount;
 
     //Company responsible for the refill
-    private AID responsibleCompany = new AID("COMPANY1", AID.ISLOCALNAME);
+    private AID responsibleCompany;
 
     protected void setup() {
 
@@ -50,5 +51,20 @@ public class ATMs extends Agent {
 
         System.out.println("ATM-Agent " + getAID().getName() + " terminating");
 
+    }
+
+    public class ATMStepBehaviour extends Behaviour {
+        private int step = 0;
+        public void action() {
+
+            switch (step) {
+
+            }
+
+        }
+
+        public boolean done() {
+            return true;
+        }
     }
 }

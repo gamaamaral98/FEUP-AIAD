@@ -1,6 +1,8 @@
 package Agents;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
 
 /*
     Example on how to call a Client-Agent:
@@ -13,10 +15,7 @@ public class Clients extends Agent {
     private Integer money;
 
     //List of known ATM machines
-    private AID[] nearATMs = {
-            new AID("ATM1", AID.ISLOCALNAME),
-            new AID("ATM2", AID.ISLOCALNAME)
-    };
+    private AID nearestATM;
 
     protected void setup() {
 
@@ -44,4 +43,23 @@ public class Clients extends Agent {
         System.out.println("Client-Agent " + getAID().getName() + " terminating");
 
     }
+
+    /*
+    This Behaviour simply represents the action for withdrawing money. The message goes to the nearest ATM.
+    I don't know how we will determinate the nearest ATM but that will be for later.
+     */
+    public class withdrawMoneyBehaviour extends OneShotBehaviour {
+        public void action() {
+            System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
+
+            //Create the message for the ATM, using REQUEST
+            ACLMessage req = new ACLMessage((ACLMessage.REQUEST));
+
+            req.addReceiver(nearestATM);
+            req.setContent(money.toString());
+
+            send(req);
+        }
+    }
+
 }
