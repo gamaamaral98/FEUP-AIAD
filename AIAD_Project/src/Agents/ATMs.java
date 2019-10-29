@@ -2,6 +2,8 @@ package Agents;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 /*
     Example on how to call a Client-Agent:
@@ -58,6 +60,65 @@ public class ATMs extends Agent {
         public void action() {
 
             switch (step) {
+
+                //the ATM awaits for withdraw attempts
+                case 0:
+                    MessageTemplate mt = MessageTemplate.MatchConversationId("withdraw-attempt");
+                    ACLMessage withdrawMsg = myAgent.receive(mt);
+
+                    if(withdrawMsg != null){
+                        if(withdrawMsg.getPerformative() == ACLMessage.REQUEST){
+
+                            int moneyToWithdraw = Integer.parseInt(withdrawMsg.getContent());
+
+                            if(moneyToWithdraw > maxAmountToWithdraw){
+                                ACLMessage msg = withdrawMsg.createReply();
+                                msg.setContent("You can't withdraw more than " + maxAmountToWithdraw.toString());
+                            }
+                            else if(moneyToWithdraw > moneyAvailable){
+                                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                                msg.addReceiver(responsibleCompany);
+                                msg.setConversationId("refill-request");
+                                Integer amountNeeded = maxRefillAmount - moneyAvailable;
+                                msg.setContent(amountNeeded.toString());
+                                step = 1;
+                                break;
+                            }
+                            else{
+                                moneyAvailable -= moneyToWithdraw;
+                                ACLMessage msg = withdrawMsg.createReply();
+                                msg.setContent("You will receive the money");
+                            }
+                        }
+
+
+                    }else{
+                        block();
+                    }
+                    break;
+
+                //case it doesn't have money
+                case 1:
+                    MessageTemplate responseFromCompany = MessageTemplate.MatchConversationId("workers.response");
+                    ACLMessage msg = myAgent.receive(responseFromCompany);
+
+                    if(msg != null){
+                        if(msg.getContent() == "No workers"){
+                            step = 2;
+                            break;
+                        }else{
+                            int refill = Integer.parseInt(msg.getContent());
+                            moneyAvailable += refill;
+                        }
+                    }
+                    else{
+                        block();
+                    }
+
+
+                //case it looks for a new company
+                case 2:
+                    //AQUI FAZER OS CONTRATOS NET PARA COMPETIÇAO
 
             }
 

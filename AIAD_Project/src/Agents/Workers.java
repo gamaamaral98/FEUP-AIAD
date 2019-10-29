@@ -70,7 +70,7 @@ public class Workers extends Agent {
 
     public class refillATMBehaviour extends CyclicBehaviour {
         public void action() {
-            ACLMessage msg = receive();
+            ACLMessage msg = myAgent.receive();
 
             if(msg != null){
 
@@ -86,22 +86,25 @@ public class Workers extends Agent {
                 if(amountRefill <= moneyForRefills){
 
                     reply.setContent("Positive");
+                    reply.setConversationId("response-company");
                     send(reply);
 
                     ATMtoRefill = new AID(split[2], AID.ISGUID);
 
                     //Message to the ATM
                     ACLMessage msgATM = new ACLMessage(ACLMessage.INFORM);
+                    msgATM.setConversationId("worker-response");
 
                     msg.addReceiver(ATMtoRefill);
                     msg.setContent(amountRefill.toString());
 
-                    send(msgATM);
+                    myAgent.send(msgATM);
 
                 }else{
 
                     reply.setContent("Negative");
-                    send(reply);
+                    reply.setConversationId("response-company");
+                    myAgent.send(reply);
 
                 }
 

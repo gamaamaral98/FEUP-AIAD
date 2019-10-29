@@ -55,10 +55,11 @@ public class Clients extends Agent {
             //Create the message for the ATM, using REQUEST
             ACLMessage req = new ACLMessage((ACLMessage.REQUEST));
 
+            req.setConversationId("withdraw-attempt");
             req.addReceiver(nearestATM);
             req.setContent(money.toString());
 
-            send(req);
+            myAgent.send(req);
         }
     }
 
