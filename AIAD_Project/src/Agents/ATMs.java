@@ -119,13 +119,14 @@ public class ATMs extends Agent {
                 //case it looks for a new company
                 case 2:
                     //AQUI FAZER OS CONTRATOS NET PARA COMPETIÇAO
+                    break;
 
             }
 
         }
 
         public boolean done() {
-            return true;
+            return (step == 2);
         }
     }
 }
