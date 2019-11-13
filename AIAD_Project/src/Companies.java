@@ -9,14 +9,19 @@ import java.util.Queue;
 public class Companies extends Agent {
 
     //List of workers
-    private AID[] workers;
+    private AID[] workers = {
+            new AID("worker1", AID.ISLOCALNAME),
+            new AID("worker2", AID.ISLOCALNAME)
+    };
 
     //List of ATMs that belong to the company
-    private AID[] ATMs;
+    //private AID[] ATMs;
 
     protected void setup() {
 
-        System.out.println("Hello! Company-Agent " + getAID().getName() + " is ready!");
+        System.out.println("Hello! Company-Agent " + getAID().getName() + " is ready!\n");
+
+        addBehaviour(new RequestPerformer());
 
     }
 
@@ -45,6 +50,7 @@ public class Companies extends Agent {
                     ACLMessage refill = myAgent.receive(mt);
 
                     if(refill != null){
+
                         if(refill.getPerformative() == ACLMessage.REQUEST){
 
                             atm = refill.getSender();
@@ -57,9 +63,8 @@ public class Companies extends Agent {
                                 refillRequest.addReceiver(workers[i]);
                             }
 
-                            refillRequest.setContent(amount.toString() + "/" + atm.toString());
+                            refillRequest.setContent(amount.toString());
                             myAgent.send(refillRequest);
-
 
                             step = 1;
                             break;
@@ -72,20 +77,28 @@ public class Companies extends Agent {
 
                 //Awaits for workers messages
                 case 1:
+
                     MessageTemplate mtCompany = MessageTemplate.MatchConversationId("response-company");
                     ACLMessage workersReply = myAgent.receive(mtCompany);
 
                     if(workersReply != null){
-                        if(workersReply.getPerformative() == ACLMessage.INFORM && workersReply.getContent() == "Positive"){
-                            step = 2;
+                        if(workersReply.getPerformative() == ACLMessage.INFORM && workersReply.getContent().equals("Positive")){
+                            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                            msg.addReceiver(atm);
+                            msg.setContent(amount.toString());
+                            msg.setConversationId("company-response");
+                            myAgent.send(msg);
+
+                            step = 0;
                             break;
                         }else{
                             negativeRsp++;
                             if(negativeRsp == workers.length){
                                 negativeRsp = 0;
                                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                                msg.addReceiver(atm);
                                 msg.setContent("No workers");
-                                msg.setConversationId("workers-response");
+                                msg.setConversationId("company-response");
                                 step = 0;
                                 break;
                             }

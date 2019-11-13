@@ -17,7 +17,7 @@ public class ATMs extends Agent {
     private Integer maxRefillAmount;
 
     //Company responsible for the refill
-    private AID responsibleCompany;
+    private AID responsibleCompany = new AID("company1", AID.ISLOCALNAME);
 
     protected void setup() {
 
@@ -85,14 +85,6 @@ public class ATMs extends Agent {
                                 cliMsg.setConversationId("response-client");
                                 myAgent.send(cliMsg);
 
-                                ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-                                msg.addReceiver(responsibleCompany);
-                                msg.setConversationId("refill-request");
-                                Integer amountNeeded = maxRefillAmount - moneyAvailable;
-                                msg.setContent(amountNeeded.toString());
-
-                                myAgent.send(msg);
-
                                 step = 1;
                                 break;
                             }
@@ -114,26 +106,43 @@ public class ATMs extends Agent {
 
                 //case it doesn't have money
                 case 1:
-                    MessageTemplate responseFromCompany = MessageTemplate.MatchConversationId("workers.response");
-                    ACLMessage msg = myAgent.receive(responseFromCompany);
 
-                    if(msg != null){
-                        if(msg.getContent() == "No workers"){
-                            step = 2;
+                    ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+
+                    msg.addReceiver(responsibleCompany);
+                    msg.setConversationId("refill-request");
+                    Integer amountNeeded = maxRefillAmount - moneyAvailable;
+                    msg.setContent(amountNeeded.toString());
+
+                    myAgent.send(msg);
+
+                    step = 2;
+                    break;
+
+                //Response from company
+                case 2:
+
+                    MessageTemplate responseFromCompany = MessageTemplate.MatchConversationId("company-response");
+                    ACLMessage response = myAgent.receive(responseFromCompany);
+
+                    if(response != null){
+                        if(response.getContent().equals("No workers")){
+                            step = 3;
                             break;
                         }else{
-                            int refill = Integer.parseInt(msg.getContent());
+                            int refill = Integer.parseInt(response.getContent());
                             moneyAvailable += refill;
+                            step = 0;
+                            break;
                         }
                     }
                     else{
                         block();
                     }
+                    break;
 
-
-                //case it looks for a new company
-                case 2:
-                    //AQUI FAZER OS CONTRATOS NET PARA COMPETIÇAO
+                case 3:
+                    System.out.println("COMECEM A FAZER CONTRATOS");
                     break;
 
             }
@@ -141,7 +150,7 @@ public class ATMs extends Agent {
         }
 
         public boolean done() {
-            return (step == 2);
+            return (step == 3);
         }
     }
 }

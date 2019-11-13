@@ -14,7 +14,6 @@ public class Workers extends Agent {
     private float timeToReachATM;
 
     //ATM that needs refill
-    private AID ATMtoRefill;
     private Integer amountRefill;
 
     //Company he works for;
@@ -32,22 +31,15 @@ public class Workers extends Agent {
 
         if(args != null && args.length > 0){
 
-            String ATMtoRefillAux = (String) args[0];
-            System.out.println("ATM that needs refill: " + ATMtoRefillAux);
-            ATMtoRefill = new AID(ATMtoRefillAux, AID.ISLOCALNAME);
-
-            String CompanyAux = (String) args[1];
-            System.out.println("Company Responsible: " + CompanyAux);
-            company = new AID(CompanyAux, AID.ISLOCALNAME);
-
-            String moneyForRefillsAux = (String) args[2];
-            System.out.println("Money available for refills " + moneyForRefillsAux);
+            String moneyForRefillsAux = (String) args[0];
+            System.out.println("Money available for refills " + moneyForRefillsAux + "\n");
             moneyForRefills = Integer.parseInt(moneyForRefillsAux);
 
         } else {
-            System.out.println("No Company or ATM specified");
             doDelete();
         }
+
+        addBehaviour(new refillATMBehaviour());
     }
 
     //Agent clean-up operations
@@ -71,11 +63,7 @@ public class Workers extends Agent {
 
             if(msg != null){
 
-                //Message will have amount/ATM
-                String fullMessage = msg.getContent();
-                String[] split = fullMessage.split("/");
-
-                amountRefill = Integer.parseInt(split[1]);
+                amountRefill = Integer.parseInt(msg.getContent());
 
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.INFORM);
@@ -84,18 +72,7 @@ public class Workers extends Agent {
 
                     reply.setContent("Positive");
                     reply.setConversationId("response-company");
-                    send(reply);
-
-                    ATMtoRefill = new AID(split[2], AID.ISGUID);
-
-                    //Message to the ATM
-                    ACLMessage msgATM = new ACLMessage(ACLMessage.INFORM);
-                    msgATM.setConversationId("worker-response");
-
-                    msg.addReceiver(ATMtoRefill);
-                    msg.setContent(amountRefill.toString());
-
-                    myAgent.send(msgATM);
+                    myAgent.send(reply);
 
                 }else{
 
