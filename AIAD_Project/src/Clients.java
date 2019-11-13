@@ -1,20 +1,23 @@
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 
 /*
     Example on how to call a Client-Agent:
-        jade.Boot client:Clients(200)
+        jade.Boot client:Clients(200,0)
  */
 
 public class Clients extends Agent {
 
     //Amount of money the client wishes do withdraw
     private Integer money;
+    private Integer wallet;
 
     //List of known ATM machines
-    private AID nearestATM;
+    private AID nearestATM = new AID("atm1", AID.ISLOCALNAME);
 
     protected void setup() {
 
@@ -26,14 +29,20 @@ public class Clients extends Agent {
         if(args != null && args.length > 0){
 
             String moneyAux = (String) args[0];
+            String available = (String) args[1];
             System.out.println("Client wants to withdraw " + moneyAux);
 
             money = Integer.parseInt(moneyAux);
+            wallet = Integer.parseInt(available);
 
         } else {
             System.out.println("No amount of money specified!");
             doDelete();
         }
+
+        addBehaviour(new withdrawMoneyBehaviour());
+        addBehaviour(new atmResponse());
+
     }
 
     //Agent clean-up operations
@@ -59,6 +68,39 @@ public class Clients extends Agent {
             req.setContent(money.toString());
 
             myAgent.send(req);
+        }
+    }
+
+    public class atmResponse extends CyclicBehaviour {
+        @Override
+        public void action() {
+            MessageTemplate atmResponse = MessageTemplate.MatchConversationId("response-client");
+            ACLMessage atmReply = myAgent.receive(atmResponse);
+
+            if(atmReply != null){
+
+                System.out.println(atmReply.getContent());
+
+                if(atmReply.getContent().equals("You will receive the money")){
+
+                    wallet += money;
+                    System.out.println(getAID().getName() + "now has " + wallet.toString() + "\n");
+                    takeDown();
+
+                }else if(atmReply.getContent().equals("No money available, requesting refill")){
+
+                    System.out.println("No money available, requesting refill. Come back later.\n");
+                    takeDown();
+
+                }else{
+
+                    System.out.println("Your value is above the maximum amount to withdraw.");
+                    takeDown();
+
+                }
+            }else{
+                block();
+            }
         }
     }
 

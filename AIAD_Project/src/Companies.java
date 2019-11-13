@@ -42,7 +42,7 @@ public class Companies extends Agent {
                 //Receives messages from ATMs asking for refill
                 case 0:
                     MessageTemplate mt = MessageTemplate.MatchConversationId("refill-request");
-                    ACLMessage refill = myAgent.receive();
+                    ACLMessage refill = myAgent.receive(mt);
 
                     if(refill != null){
                         if(refill.getPerformative() == ACLMessage.REQUEST){

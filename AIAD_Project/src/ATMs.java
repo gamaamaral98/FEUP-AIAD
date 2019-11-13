@@ -45,6 +45,8 @@ public class ATMs extends Agent {
             System.out.println("No status specified!");
             doDelete();
         }
+
+        addBehaviour(new ATMStepBehaviour());
     }
 
     //Agent clean-up operations
@@ -73,13 +75,24 @@ public class ATMs extends Agent {
                             if(moneyToWithdraw > maxAmountToWithdraw){
                                 ACLMessage msg = withdrawMsg.createReply();
                                 msg.setContent("You can't withdraw more than " + maxAmountToWithdraw.toString());
+                                msg.setConversationId("response-client");
+                                myAgent.send(msg);
                             }
                             else if(moneyToWithdraw > moneyAvailable){
+
+                                ACLMessage cliMsg = withdrawMsg.createReply();
+                                cliMsg.setContent("No money available, requesting refill");
+                                cliMsg.setConversationId("response-client");
+                                myAgent.send(cliMsg);
+
                                 ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
                                 msg.addReceiver(responsibleCompany);
                                 msg.setConversationId("refill-request");
                                 Integer amountNeeded = maxRefillAmount - moneyAvailable;
                                 msg.setContent(amountNeeded.toString());
+
+                                myAgent.send(msg);
+
                                 step = 1;
                                 break;
                             }
@@ -87,6 +100,9 @@ public class ATMs extends Agent {
                                 moneyAvailable -= moneyToWithdraw;
                                 ACLMessage msg = withdrawMsg.createReply();
                                 msg.setContent("You will receive the money");
+                                msg.setConversationId("response-client");
+
+                                myAgent.send(msg);
                             }
                         }
 
