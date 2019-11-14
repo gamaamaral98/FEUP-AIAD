@@ -1,32 +1,49 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jdk.jshell.execution.Util;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Queue;
 
 public class Companies extends Agent {
 
     //List of workers
-    private AID[] workers = {
-            new AID("worker1", AID.ISLOCALNAME),
-            new AID("worker2", AID.ISLOCALNAME)
-    };
-
+    private HashMap<AID,WorkerInfo> workers = new HashMap<>();
+    private YellowPagesMiddleware yellowPagesMiddleware;
     //List of ATMs that belong to the company
     //private AID[] ATMs;
 
     protected void setup() {
 
+
         System.out.println("Hello! Company-Agent " + getAID().getName() + " is ready!\n");
 
-        addBehaviour(new RequestPerformer());
+        //Create middleware for yellow pages
+        this.yellowPagesMiddleware = new YellowPagesMiddleware(this,"company","company");
 
+        //Register company to yellow pages
+        this.yellowPagesMiddleware.register();
+
+        addBehaviour(new RequestPerformer());
+        addBehaviour(new ListenForATMsBehaviour());
+        addBehaviour(new WorkerRegistrationBehaviour());
+
+    }
+
+
+    private void getNearestWorkerWithAmountAvailable(Integer refillAmount, Position atmPos) {
     }
 
     //Agent clean-up operations
     protected void takeDown(){
+
+        //Deregister from the yellow pages
+        this.yellowPagesMiddleware.deregister();
 
         System.out.println("Company-Agent " + getAID().getName() + " terminating");
 
@@ -59,8 +76,8 @@ public class Companies extends Agent {
                             // Send workers a message
                             ACLMessage refillRequest = new ACLMessage(ACLMessage.REQUEST);
 
-                            for(int i = 0; i < workers.length; i++){
-                                refillRequest.addReceiver(workers[i]);
+                            for(AID worker:workers.keySet()){
+                                refillRequest.addReceiver(worker);
                             }
 
                             refillRequest.setContent(amount.toString());
@@ -93,7 +110,7 @@ public class Companies extends Agent {
                             break;
                         }else{
                             negativeRsp++;
-                            if(negativeRsp == workers.length){
+                            if(negativeRsp == workers.size()){
                                 negativeRsp = 0;
                                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                                 msg.addReceiver(atm);
@@ -118,4 +135,73 @@ public class Companies extends Agent {
 
     }
 
+    private class ListenForATMsBehaviour extends CyclicBehaviour {
+        @Override
+        public void action() {
+            MessageTemplate replyTemplate = MessageTemplate.MatchConversationId("initial-company");
+            ACLMessage atmRequest = myAgent.receive(replyTemplate);
+
+            if(atmRequest != null){
+
+                Companies company = (Companies) myAgent;
+
+                AID atm = atmRequest.getSender();
+                Integer refillAmount = Integer.parseInt(atmRequest.getContent().split(",")[0]);
+                Position atmPos = new Position(
+                        Integer.parseInt(atmRequest.getContent().split(",")[1]),
+                        Integer.parseInt(atmRequest.getContent().split(",")[2]));
+
+                AID closestWorker=null;
+                Integer bestDistance = Integer.MAX_VALUE;
+                for(AID worker: workers.keySet()){
+                    Integer distance = workers.get(worker).getDistance(atmPos);
+                    if(bestDistance > distance){
+                        bestDistance = distance;
+                        closestWorker = worker;
+                    }
+                }
+
+                if(closestWorker != null){
+                    String[] args = {closestWorker.getName(),bestDistance.toString()};
+
+                    Utils.sendRequest(company,ACLMessage.PROPOSE,"initial-company",atm,Utils.createMessageString(args));
+                }else{
+                    Utils.sendRequest(company,ACLMessage.FAILURE,"initial-company",atm,"");
+                }
+
+
+            }else{
+                block();
+            }
+        }
+
+    }
+
+    private class WorkerRegistrationBehaviour extends CyclicBehaviour {
+        @Override
+        public void action() {
+            MessageTemplate replyTemplate = MessageTemplate.MatchConversationId("register-worker");
+            ACLMessage workerRequest = myAgent.receive(replyTemplate);
+
+            if(workerRequest != null){
+                Companies company = (Companies) myAgent;
+                AID worker = workerRequest.getSender();
+
+                //Attention position has to be the first 2 arguments
+                Position position = new Position(workerRequest.getContent());
+                Integer moneyAvailable = Integer.parseInt(workerRequest.getContent().split(",")[2]);
+
+                if(workerRequest.getPerformative() == ACLMessage.REQUEST){
+                    company.workers.put(worker,new WorkerInfo(position,moneyAvailable));
+                    System.out.println("Registered worker " + worker);
+                }else if(workerRequest.getPerformative() == ACLMessage.CANCEL){
+                    company.workers.remove(workerRequest.getSender());
+                    System.out.println("Deregistered worker " + worker);
+                }
+
+            }else{
+                block();
+            }
+        }
+    }
 }
