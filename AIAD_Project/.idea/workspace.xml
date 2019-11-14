@@ -2,20 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15af5b41-032f-46d7-b9e2-8145f1f285bd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/jade1.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ATMWorkerChoice.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Position.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/WorkerInfo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/jade.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/jade.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AIAD_Project.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AIAD_Project.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/APDescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/APDescription.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MTPs-Main-Container.txt" beforeDir="false" afterPath="$PROJECT_DIR$/MTPs-Main-Container.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ATMs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ATMs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Clients.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clients.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Companies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Companies.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Workers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Workers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Utils.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -83,7 +72,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1571221115373</updated>
-      <workItem from="1573685534457" duration="27308000" />
+      <workItem from="1573685534457" duration="27856000" />
+      <workItem from="1573766127171" duration="374000" />
     </task>
     <servers />
   </component>

@@ -21,12 +21,22 @@ public class Utils {
     }
 
 
-    public static void sendRequest(Agent sender, int messageType, String conversationID, AID agent, String content) {
+    public static void sendRequest(Agent sender, int messageType, String conversationID, AID receiverAID, String content) {
         ACLMessage req = new ACLMessage(messageType);
         req.setConversationId(conversationID);
-        req.addReceiver(agent);
+        req.addReceiver(receiverAID);
         req.setContent(content);
 
         sender.send(req);
     }
+
+    public static void sendRequest(Agent sender, int messageType, String conversationID, AID receiverAID, String[] args) {
+        ACLMessage req = new ACLMessage(messageType);
+        req.setConversationId(conversationID);
+        req.addReceiver(receiverAID);
+        req.setContent(Utils.createMessageString(args));
+
+        sender.send(req);
+    }
+
 }

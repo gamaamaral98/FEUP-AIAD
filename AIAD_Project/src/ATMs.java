@@ -199,7 +199,7 @@ public class ATMs extends Agent {
             String[] args = {refillAmount.toString(),atm.position.x.toString(),atm.position.y.toString()};
 
             for (AID aid:atm.companies) {
-                Utils.sendRequest(atm,messageType,conversationID,aid,Utils.createMessageString(args));
+                Utils.sendRequest(atm,messageType,conversationID,aid,args);
             }
 
             System.out.println("Sent request to initial company");
