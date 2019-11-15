@@ -13,6 +13,7 @@ import jade.lang.acl.MessageTemplate;
 
 public class Clients extends Agent {
 
+    public String clientName;
     //Amount of money the client wishes do withdraw
     private Integer money;
     private Integer wallet;
@@ -22,48 +23,34 @@ public class Clients extends Agent {
     private AID nearestATM = new AID("atm1", AID.ISLOCALNAME);
     private YellowPagesMiddleware yellowPagesMiddleware;
 
-    public AID atmToWithdraw =null;
+    public AID atmToWithdraw = null;
+
+    public Clients(String clientName,Integer money, Integer wallet, Position position) {
+        this.clientName = clientName;
+        this.position = position;
+        this.money = money;
+        this.wallet = wallet;
+    }
 
     protected void setup() {
 
-        //Random pos
-        //position = new Position();
-        this.position = new Position(1,1);
-
         System.out.println("Hello! Client-Agent " + getAID().getName() + " is ready!");
 
-        //Get the amount of money client wishes to withdraw as a start-up argument
-        Object[] args = getArguments();
-
-        if (args != null && args.length > 0) {
-
-            String moneyAux = (String) args[0];
-            String available = (String) args[1];
-            System.out.println("Client wants to withdraw " + moneyAux);
-
-            money = Integer.parseInt(moneyAux);
-            wallet = Integer.parseInt(available);
-
-            if(money>wallet){
-                System.out.println("Money to withdraw bigger than bank account!");
-                doDelete();
-
-            }else{
-                //Create middleware for yellow pages
-                this.yellowPagesMiddleware = new YellowPagesMiddleware(this, "client", "client");
-
-                //Register company to yellow pages
-                this.yellowPagesMiddleware.register();
-
-                addBehaviour(new atmResponse());
-                addBehaviour(new withdrawMoneyBehaviour());
-            }
-
-        } else {
-            System.out.println("No amount of money specified!");
+        if (money > wallet) {
+            System.out.println("Money to withdraw bigger than bank account!");
             doDelete();
+        } else {
+            //Create middleware for yellow pages
+            this.yellowPagesMiddleware = new YellowPagesMiddleware(this, "client", "client");
+
+            //Register company to yellow pages
+            this.yellowPagesMiddleware.register();
+
+            addBehaviour(new atmResponse());
+            addBehaviour(new withdrawMoneyBehaviour());
         }
 
+        System.out.println("Created client: " + this.toStringInitial());
     }
 
     //Agent clean-up operations
@@ -71,13 +58,25 @@ public class Clients extends Agent {
 
 
         //Deregister from the yellow pages
-        if(this.yellowPagesMiddleware!=null)
+        if (this.yellowPagesMiddleware != null)
             this.yellowPagesMiddleware.deregister();
 
 
         System.out.println("Client-Agent " + getAID().getName() + " terminating");
 
     }
+
+    @Override
+    public String toString() {
+        return "Clients{" +
+                "money=" + money +
+                ", wallet=" + wallet +
+                ", position=" + position +
+                ", nearestATM=" + nearestATM +
+                ", atmToWithdraw=" + atmToWithdraw +
+                '}';
+    }
+
 
     /*
     This Behaviour simply represents the action for withdrawing money. */
@@ -92,9 +91,9 @@ public class Clients extends Agent {
 
             //Get atms pos
             for (AID aid : atmsAgents) {
-                String[] args = {money.toString(),position.x.toString(),position.y.toString()};
+                String[] args = {money.toString(), position.x.toString(), position.y.toString()};
                 Utils.sendRequest(
-                        client,(ACLMessage.REQUEST), "withdraw-attempt", aid, Utils.createMessageString(args));
+                        client, (ACLMessage.REQUEST), "withdraw-attempt", aid, Utils.createMessageString(args));
             }
 
         }
@@ -107,31 +106,38 @@ public class Clients extends Agent {
             MessageTemplate atmResponse = MessageTemplate.MatchConversationId("withdraw-attempt");
             ACLMessage atmReply = myAgent.receive(atmResponse);
 
-            if(atmReply != null) {
+            if (atmReply != null) {
                 String content = atmReply.getContent();
                 Clients client = (Clients) myAgent;
                 System.out.println("Received atm response " + atmReply.getSender());
                 System.out.println("Content: " + content);
 
-                if(atmReply.getPerformative() == (ACLMessage.AGREE)) {
+                if (atmReply.getPerformative() == (ACLMessage.AGREE)) {
                     atmToWithdraw = (atmReply.getSender());
 
                     client.wallet += money;
                     System.out.println(client.getAID().getName() + "now has " + client.wallet.toString() + "\n");
                     doDelete();
-                }else if(atmReply.getPerformative() == (ACLMessage.INFORM)){
+                } else if (atmReply.getPerformative() == (ACLMessage.INFORM)) {
                     System.out.println("Amount specified bigger than atm maximum withdraw amount ("
                             + content + ")\n");
                     doDelete();
-                }else if(atmReply.getPerformative() == (ACLMessage.FAILURE)){
+                } else if (atmReply.getPerformative() == (ACLMessage.FAILURE)) {
                     System.out.println("No money available, requesting refill. Come back later.\n");
                     doDelete();
                 }
-            }else{
+            } else {
                 block();
             }
 
         }
+    }
+    public String toStringInitial() {
+        return "Clients{" +
+                "money=" + money +
+                ", wallet=" + wallet +
+                ", position=" + position +
+                '}';
     }
 }
 

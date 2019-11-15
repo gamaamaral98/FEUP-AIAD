@@ -22,49 +22,31 @@ import java.util.HashMap;
 
 public class ATMs extends Agent {
 
+    public String atmName;
     //Amount of money the client wishes do withdraw
     private Integer moneyAvailable;
     private Integer maxAmountToWithdraw;
     private Integer maxRefillAmount;
-    private Position position;
+    public Position position;
     private YellowPagesMiddleware yellowPagesMiddleware;
     //Company responsible for the refill
     private AID responsibleCompany = new AID("company1", AID.ISLOCALNAME);
     private AID[] companies;
     public AID currentCompany = new AID("", AID.ISLOCALNAME);
 
+
+    public ATMs(String atmName, Integer moneyAvailable, Integer maxAmountToWithdraw, Integer maxRefillAmount, Position position) {
+        this.atmName = atmName;
+        this.moneyAvailable = moneyAvailable;
+        this.maxAmountToWithdraw = maxAmountToWithdraw;
+        this.maxRefillAmount = maxRefillAmount;
+        this.position = position;
+    }
+
     protected void setup() {
 
-        //Random pos
-        //this.position = new Position();
-        this.position = new Position(1,1);
-        System.out.println("Hello! ATM-Agent " + getAID().getName() + " is ready!");
-
-        //Get the amount of money available, max amount to withdraw and the max refill amount
-        Object[] args = getArguments();
-
-        if(args != null && args.length > 0){
-
-            String moneyAvailableAux = (String) args[0];
-            String maxAmountToWithdrawAux = (String) args[1];
-            String maxRefillAmountAux = (String) args[2];
-            System.out.println("ATM has the following status: \n"
-                + "Money Available: " + moneyAvailableAux + "\n"
-                    + "Max Amount to Withdraw " + maxAmountToWithdrawAux + "\n"
-                    + "Max Refill Amount " + maxRefillAmountAux + "\n"
-            );
-
-            moneyAvailable = Integer.parseInt(moneyAvailableAux);
-            maxAmountToWithdraw = Integer.parseInt(maxAmountToWithdrawAux);
-            maxRefillAmount = Integer.parseInt(maxRefillAmountAux);
-
-        } else {
-            System.out.println("No status specified!");
-            doDelete();
-        }
-
         //Create middleware for yellow pages
-        this.yellowPagesMiddleware = new YellowPagesMiddleware(this,"atm","atm");
+        this.yellowPagesMiddleware = new YellowPagesMiddleware(this, "atm", "atm");
 
         //Register atm to yellow pages
         this.yellowPagesMiddleware.register();
@@ -73,7 +55,7 @@ public class ATMs extends Agent {
     }
 
     //Agent clean-up operations
-    protected void takeDown(){
+    protected void takeDown() {
 
         //Deregister from the yellow pages
         this.yellowPagesMiddleware.deregister();
@@ -84,8 +66,10 @@ public class ATMs extends Agent {
 
     public class ATMStepBehaviour extends Behaviour {
         private int step = 0;
+
         public void action() {
 
+            ATMs atm = (ATMs) myAgent;
             switch (step) {
 
                 //the ATM awaits for withdraw attempts
@@ -93,15 +77,13 @@ public class ATMs extends Agent {
                     MessageTemplate mt = MessageTemplate.MatchConversationId("withdraw-attempt");
                     ACLMessage withdrawMsg = myAgent.receive(mt);
                     System.out.println(withdrawMsg);
-                    if(withdrawMsg != null){
-
-                        ATMs atm = (ATMs) myAgent;
+                    if (withdrawMsg != null) {
 
                         String content = withdrawMsg.getContent();
 
-                        Position positionOfClient = new Position(content.split(",")[1],content.split(",")[2]);
+                        Position positionOfClient = new Position(content.split(",")[1], content.split(",")[2]);
 
-                        if(!positionOfClient.equals(atm.position)){
+                        if (!positionOfClient.equals(atm.position)) {
                             //Not same position
                             break;
                         }
@@ -111,26 +93,26 @@ public class ATMs extends Agent {
                         String conversationID = "withdraw-attempt";
 
                         //Maximum amount to withdraw exceeded
-                        if(moneyToWithdraw> atm.maxAmountToWithdraw){
+                        if (moneyToWithdraw > atm.maxAmountToWithdraw) {
                             Utils.sendRequest(atm,
-                                    ACLMessage.INFORM,conversationID,
-                                    sender,atm.maxAmountToWithdraw.toString());
+                                    ACLMessage.INFORM, conversationID,
+                                    sender, atm.maxAmountToWithdraw.toString());
                             break;
-                        //Needs refill
-                        }else if(moneyToWithdraw > atm.moneyAvailable){
+                            //Needs refill
+                        } else if (moneyToWithdraw > atm.moneyAvailable) {
                             Utils.sendRequest(atm,
-                                    ACLMessage.FAILURE,conversationID,
-                                    sender,"");
+                                    ACLMessage.FAILURE, conversationID,
+                                    sender, "");
                             step = 1;
                             break;
                         }
 
                         //Proceed with transacton
                         atm.moneyAvailable -= moneyToWithdraw;
-                        Utils.sendRequest(atm,ACLMessage.AGREE,conversationID,sender,"");
+                        Utils.sendRequest(atm, ACLMessage.AGREE, conversationID, sender, "");
 
-                        System.out.println("ATM " + atm.getLocalName() + " now has " + atm.moneyAvailable +" available.\n");
-                    }else{
+                        System.out.println("ATM " + atm.getLocalName() + " now has " + atm.moneyAvailable + " available.\n");
+                    } else {
                         block();
                     }
                     break;
@@ -138,42 +120,38 @@ public class ATMs extends Agent {
                 //case it doesn't have money
                 case 1:
 
-                    ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+                    Integer moneyNeeded = (atm.maxRefillAmount - atm.moneyAvailable);
 
-                    msg.addReceiver(responsibleCompany);
-                    msg.setConversationId("refill-request");
-                    Integer amountNeeded = maxRefillAmount - moneyAvailable;
-                    msg.setContent(amountNeeded.toString());
-
-                    myAgent.send(msg);
+                    //Inform worker
+                    Utils.sendRequest(
+                            atm, ACLMessage.INFORM, "refill-request",
+                            atm.currentCompany, moneyNeeded.toString());
 
                     step = 2;
                     break;
 
-                //Response from company
+                //Received money
                 case 2:
 
-                    MessageTemplate responseFromCompany = MessageTemplate.MatchConversationId("company-response");
-                    ACLMessage response = myAgent.receive(responseFromCompany);
+                    MessageTemplate refillTriggered = MessageTemplate.MatchConversationId("resolved-refill");
+                    ACLMessage response = myAgent.receive(refillTriggered);
 
-                    if(response != null){
-                        if(response.getContent().equals("No workers")){
-                            step = 3;
-                            break;
-                        }else{
-                            int refill = Integer.parseInt(response.getContent());
-                            moneyAvailable += refill;
-                            step = 0;
-                            break;
+                    if (response != null) {
+
+                        //Company sold rights to the atm, now needs to wait for another
+                        if (response.getPerformative() == ACLMessage.PROPAGATE) {
+                            //New company sends notice to propagate information
+                            atm.currentCompany = response.getSender();
+                            block();
                         }
-                    }
-                    else{
+                        //Worker refilled
+                        else if (response.getPerformative() == ACLMessage.CONFIRM) {
+                            atm.moneyAvailable += Integer.parseInt(response.getContent());
+                            step=0;
+                        }
+                    } else {
                         block();
                     }
-                    break;
-
-                case 3:
-                    System.out.println("COMECEM A FAZER CONTRATOS");
                     break;
 
             }
@@ -194,12 +172,12 @@ public class ATMs extends Agent {
 
             int messageType = ACLMessage.REQUEST;
             String conversationID = "initial-company";
-            Integer refillAmount = atm.maxRefillAmount-atm.moneyAvailable;
+            Integer refillAmount = atm.maxRefillAmount - atm.moneyAvailable;
 
-            String[] args = {refillAmount.toString(),atm.position.x.toString(),atm.position.y.toString()};
+            String[] args = {refillAmount.toString(), atm.position.x.toString(), atm.position.y.toString()};
 
-            for (AID aid:atm.companies) {
-                Utils.sendRequest(atm,messageType,conversationID,aid,args);
+            for (AID aid : atm.companies) {
+                Utils.sendRequest(atm, messageType, conversationID, aid, args);
             }
 
             System.out.println("Sent request to initial company");
@@ -216,50 +194,50 @@ public class ATMs extends Agent {
             System.out.println("Starting recovery of initial company responses");
 
             ATMs atm = (ATMs) myAgent;
-            HashMap<AID,ATMWorkerChoice> closestCompanyWorkerFromATM = new HashMap<>();
+            HashMap<AID, ATMWorkerChoice> closestCompanyWorkerFromATM = new HashMap<>();
 
-            while(closestCompanyWorkerFromATM.size() != companies.length){
+            while (closestCompanyWorkerFromATM.size() != companies.length) {
                 MessageTemplate replyTemplate = MessageTemplate.MatchConversationId("initial-company");
                 ACLMessage companyReply = myAgent.receive(replyTemplate);
 
-                if(companyReply != null){
+                if (companyReply != null) {
                     AID company = companyReply.getSender();
-                    Integer distance= Integer.MAX_VALUE;
+                    Integer distance = Integer.MAX_VALUE;
                     AID worker = null;
-                    if(companyReply.getPerformative() == ACLMessage.PROPOSE){
+                    if (companyReply.getPerformative() == ACLMessage.PROPOSE) {
 
-                        worker  = new AID(companyReply.getContent(),AID.ISGUID);
-                        distance  = Integer.parseInt(companyReply.getContent().split(",")[1]);
+                        worker = new AID(companyReply.getContent(), AID.ISGUID);
+                        distance = Integer.parseInt(companyReply.getContent().split(",")[1]);
 
-                    }else if(companyReply.getPerformative() == ACLMessage.FAILURE){
+                    } else if (companyReply.getPerformative() == ACLMessage.FAILURE) {
 
                     }
 
-                    if(closestCompanyWorkerFromATM.put(worker,new ATMWorkerChoice(worker,distance)) != null)
+                    if (closestCompanyWorkerFromATM.put(worker, new ATMWorkerChoice(worker, distance)) != null)
                         System.out.println("In ATMs/GetInitialProposalsBehaviour - It seems that the same atm was registered\n");
 
                     System.out.println("Received response from " + company.toString());
-                }else{
+                } else {
                     block();
                 }
             }
             Integer lastDistance = Integer.MAX_VALUE;
-            for (AID aid:closestCompanyWorkerFromATM.keySet()) {
+            for (AID aid : closestCompanyWorkerFromATM.keySet()) {
                 ATMWorkerChoice choice = closestCompanyWorkerFromATM.get(aid);
-                if(choice == null)
+                if (choice == null)
                     continue;
 
                 Integer dist = choice.getDistance();
 
-                if(dist < lastDistance)
+                if (dist < lastDistance)
                     atm.currentCompany = aid;
             }
 
-            if(atm.currentCompany == null){
+            if (atm.currentCompany == null) {
                 System.out.println("Couldn't assign a company, something unexpected happened, terminating atm\n");
                 doDelete();
-            }else{
-                System.out.println("Initial company to atm: " + atm.getAID() + "\n\t" + "Company: "+ atm.currentCompany );
+            } else {
+                System.out.println("Initial company to atm: " + atm.getAID() + "\n\t" + "Company: " + atm.currentCompany);
             }
         }
 

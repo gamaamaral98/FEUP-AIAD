@@ -2,9 +2,32 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15af5b41-032f-46d7-b9e2-8145f1f285bd" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/AIAD_Project/NationalBank.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/NationalBank.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/APDescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/APDescription.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Clients$atmResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Clients$atmResponse.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Clients$withdrawMoneyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Clients$withdrawMoneyBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Clients.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Clients.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$ListenForATMsBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$ListenForATMsBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$RequestPerformer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$RequestPerformer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$WorkerRegistrationBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$WorkerRegistrationBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Position.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Position.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Utils.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Utils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$refillATMBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$refillATMBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$registerToCompanyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$registerToCompanyBehaviour.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ATMs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ATMs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Clients.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clients.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Companies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Companies.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Position.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Workers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Workers.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -30,6 +53,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -52,7 +76,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.CommandLine">
     <configuration name="Agents" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="jade.Boot" />
       <module name="AIAD_Project" />
@@ -61,6 +85,17 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="CommandLine" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="NationalBank" />
+      <module name="AIAD_Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.CommandLine" />
+      <item itemvalue="Application.Agents" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -73,7 +108,8 @@
       <option name="presentableId" value="Default" />
       <updated>1571221115373</updated>
       <workItem from="1573685534457" duration="27856000" />
-      <workItem from="1573766127171" duration="374000" />
+      <workItem from="1573766127171" duration="1626000" />
+      <workItem from="1573783282425" duration="10528000" />
     </task>
     <servers />
   </component>

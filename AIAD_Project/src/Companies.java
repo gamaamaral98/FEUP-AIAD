@@ -12,16 +12,18 @@ import java.util.Queue;
 
 public class Companies extends Agent {
 
+    public String id;
     //List of workers
     private HashMap<AID,WorkerInfo> workers = new HashMap<>();
     private YellowPagesMiddleware yellowPagesMiddleware;
     //List of ATMs that belong to the company
     //private AID[] ATMs;
 
+    public Companies(String id){
+        this.id=id;
+    }
+
     protected void setup() {
-
-
-        System.out.println("Hello! Company-Agent " + getAID().getName() + " is ready!\n");
 
         //Create middleware for yellow pages
         this.yellowPagesMiddleware = new YellowPagesMiddleware(this,"company","company");
@@ -32,7 +34,7 @@ public class Companies extends Agent {
         addBehaviour(new RequestPerformer());
         addBehaviour(new ListenForATMsBehaviour());
         addBehaviour(new WorkerRegistrationBehaviour());
-
+        System.out.println("Created company: " + this.toString());
     }
 
 
@@ -47,6 +49,13 @@ public class Companies extends Agent {
 
         System.out.println("Company-Agent " + getAID().getName() + " terminating");
 
+    }
+
+    @Override
+    public String toString() {
+        return "Companies{" +
+                "id='" + id + '\'' +
+                '}';
     }
 
     private class RequestPerformer extends Behaviour {

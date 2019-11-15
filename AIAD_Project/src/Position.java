@@ -18,8 +18,8 @@ public class Position {
     public Position() {
         Random random = new Random();
 
-        this.x = random.nextInt(100);
-        this.y = random.nextInt(100);
+        this.x = random.nextInt(20);
+        this.y = random.nextInt(20);
     }
 
     public Position(String x, String y) {

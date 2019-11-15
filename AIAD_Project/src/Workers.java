@@ -29,32 +29,13 @@ public class Workers extends Agent {
     private YellowPagesMiddleware yellowPagesMiddleware;
     public Position position;
 
+    public Workers(String workerName, String companyName, Position position, Integer moneyAvailable){
+        this.position =position;
+        this.company = new AID(companyName,AID.ISLOCALNAME);
+        this.moneyAvailable = moneyAvailable;
+    }
+
     protected void setup() {
-
-        //Random pos
-        //this.position = new Position();
-        this.position = new Position(2,2);
-        
-        System.out.println("Hello! Worker-Agent " + getAID().getName() + " is ready!");
-
-        //Get the ATM that needs to be refilled
-        Object[] args = getArguments();
-
-        if(args != null && args.length > 0){
-
-            String moneyForRefillsAux = args[0].toString();
-            this.company =  new AID(args[1].toString(),AID.ISLOCALNAME);
-
-            if(this.company == null){
-                System.out.println("Error resolving company AID ("+ this.company +") to worker (" + this.getAID() +")\n");
-            }
-
-            System.out.println("Money available for refills " + moneyForRefillsAux + "\n");
-            moneyAvailable = Integer.parseInt(moneyForRefillsAux);
-
-        } else {
-            doDelete();
-        }
 
         //Create middleware for yellow pages
         this.yellowPagesMiddleware = new YellowPagesMiddleware(this,"worker","worker");
@@ -64,6 +45,8 @@ public class Workers extends Agent {
 
         //addBehaviour(new refillATMBehaviour());
         addBehaviour(new registerToCompanyBehaviour());
+
+        System.out.println("Created worker: " + this.toString());
     }
 
     //Agent clean-up operations
@@ -80,6 +63,16 @@ public class Workers extends Agent {
 
     private void alertCompany() {
         Utils.sendRequest(this,ACLMessage.CANCEL,"register-worker",company,"");
+    }
+
+    @Override
+    public String toString() {
+        return "Workers{" +
+                " amountRefill=" + amountRefill +
+                ", company=" + company +
+                ", moneyAvailable=" + moneyAvailable +
+                ", position=" + position +
+                '}';
     }
 
 
@@ -127,13 +120,7 @@ public class Workers extends Agent {
             Workers worker = (Workers) myAgent;
 
             ArrayList<AID> companies = new ArrayList<>(Arrays.asList(worker.yellowPagesMiddleware.getAgentList("company")));
-            System.out.println("Worker company : " + worker.company);
-            System.out.println("Companies:");
-            for(AID aid :companies){
-                System.out.println("AID: " + aid.toString() +
-                        "; name: " + aid.getName() +
-                        "; localname: " + aid.getLocalName());
-            }
+
             if(companies.contains(worker.company)){
                 String[] args = {worker.position.x.toString(),worker.position.y.toString(),worker.moneyAvailable.toString()};
                 Utils.sendRequest(worker,ACLMessage.REQUEST,"register-worker",worker.company,Utils.createMessageString(args));

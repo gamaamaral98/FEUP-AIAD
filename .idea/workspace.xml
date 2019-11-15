@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="3f16634a-1cda-4bb9-b496-d7dd083279ea" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/libraries/jade.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/AIAD_Project.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/APDescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/AIAD_Project/APDescription.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/MTPs-Main-Container.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/AIAD_Project/src/ATMs.java" beforeDir="false" afterPath="$PROJECT_DIR$/AIAD_Project/src/ATMs.java" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="FEUP-AIAD" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IgnoredFileRootStore">
+    <option name="generatedRoots">
+      <set>
+        <option value="$PROJECT_DIR$/.idea" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectId" id="1SbGZybbZfWsqLLrg1577Iczm9l" />
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/AIAD_Project" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Boot" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="10" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="jade.Boot" />
+      <module name="FEUP-AIAD" />
+      <option name="PROGRAM_PARAMETERS" value="-gui" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/AIAD_Project" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3f16634a-1cda-4bb9-b496-d7dd083279ea" name="Default Changelist" comment="" />
+      <created>1571824940628</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1571824940628</updated>
+      <workItem from="1571824944983" duration="1783000" />
+      <workItem from="1573605383914" duration="2714000" />
+      <workItem from="1573643868010" duration="483000" />
+      <workItem from="1573644399447" duration="849000" />
+      <workItem from="1573645305109" duration="85000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
