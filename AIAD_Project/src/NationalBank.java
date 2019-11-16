@@ -88,9 +88,9 @@ public class NationalBank {
         AgentController clientController = this.container.acceptNewAgent("client1",client1);
         clientController.start();
 
-       /* Clients client2 = new Clients("client2",200,500,atms.get(0).position);
+        Clients client2 = new Clients("client2",200,500,atms.get(0).position);
         clientController = this.container.acceptNewAgent("client2",client2);
-        clientController.start();*/
+        clientController.start();
 
 
 

@@ -130,10 +130,11 @@ public class ATMs extends Agent {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
                     Utils.sendRequest(
                             atm, ACLMessage.REQUEST, "refill-request",
                             atm.currentCompany, args);
-                    System.out.println("ATM " + myAgent.getName() + " sent refill request to " + atm.currentCompany.getName());
+                    System.out.println("ATM " + myAgent.getName() + " sent refill request to " + atm.currentCompany.getLocalName());
                     step = 2;
                     break;
 
@@ -184,13 +185,14 @@ public class ATMs extends Agent {
 
             String[] args = {refillAmount.toString(), atm.position.x.toString(), atm.position.y.toString()};
 
+            atm.addBehaviour(new GetInitialProposalsBehaviour());
+
             for (AID aid : atm.companies) {
                 Utils.sendRequest(atm, messageType, conversationID, aid, args);
             }
 
-            System.out.println("Sent request to initial company");
+            System.out.println("Sent request to initial company to " + atm.companies.length + " companies");
 
-            atm.addBehaviour(new GetInitialProposalsBehaviour());
             atm.addBehaviour(new ATMStepBehaviour());
         }
     }
