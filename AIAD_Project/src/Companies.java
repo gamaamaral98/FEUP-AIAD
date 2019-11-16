@@ -63,24 +63,26 @@ public class Companies extends Agent {
         private AID atm;
         private Integer amount;
         private int step = 0;
-
+        public HashMap<AID,Position> workersAvailable = new HashMap<>();
         private int negativeRsp = 0;
+        public Position atmPos;
 
         public void action() {
-
             switch(step) {
-
                 //Receives messages from ATMs asking for refill
                 case 0:
                     MessageTemplate mt = MessageTemplate.MatchConversationId("refill-request");
                     ACLMessage refill = myAgent.receive(mt);
 
                     if(refill != null){
-
+                        System.out.println("Received refill request in company " + refill.toString());
                         if(refill.getPerformative() == ACLMessage.REQUEST){
 
                             atm = refill.getSender();
-                            amount = Integer.parseInt(refill.getContent());
+                            amount = Integer.parseInt(refill.getContent().split(",")[2]);
+                            atmPos = new Position(refill.getContent());
+
+                            System.out.println("Company " + myAgent.getName() + " received request to refill " + atm.getName());
 
                             // Send workers a message
                             ACLMessage refillRequest = new ACLMessage(ACLMessage.REQUEST);
@@ -89,6 +91,8 @@ public class Companies extends Agent {
                                 refillRequest.addReceiver(worker);
                             }
 
+                            refillRequest.setPerformative(ACLMessage.PROPOSE);
+                            refillRequest.setConversationId("refill-request");
                             refillRequest.setContent(amount.toString());
                             myAgent.send(refillRequest);
 
@@ -99,43 +103,61 @@ public class Companies extends Agent {
 
                     }else{
                         block();
+                        break;
                     }
 
                 //Awaits for workers messages
                 case 1:
 
-                    MessageTemplate mtCompany = MessageTemplate.MatchConversationId("response-company");
+                    MessageTemplate mtCompany = MessageTemplate.MatchConversationId("company-response");
                     ACLMessage workersReply = myAgent.receive(mtCompany);
 
                     if(workersReply != null){
-                        if(workersReply.getPerformative() == ACLMessage.INFORM && workersReply.getContent().equals("Positive")){
-                            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                            msg.addReceiver(atm);
-                            msg.setContent(amount.toString());
-                            msg.setConversationId("company-response");
-                            myAgent.send(msg);
+                        AID worker = workersReply.getSender();
+                        Position workerPosition = new Position(workersReply.getContent());
 
-                            step = 0;
-                            break;
-                        }else{
+                        if(workersReply.getPerformative() == ACLMessage.CONFIRM){
+                            System.out.println("Received confirm from worker to refill atm");
+                            workersAvailable.put(worker,workerPosition);
+                        }else if(workersReply.getPerformative() == ACLMessage.CANCEL){
                             negativeRsp++;
-                            if(negativeRsp == workers.size()){
-                                negativeRsp = 0;
-                                ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-                                msg.addReceiver(atm);
-                                msg.setContent("No workers");
-                                msg.setConversationId("company-response");
-                                step = 0;
-                                break;
-                            }
                         }
 
+                        if(workersAvailable.size() + negativeRsp == workers.size()){
+
+                            //Companies company = (Companies) myAgent;
+                            AID selectedWorker = selectWorker();
+
+                            //inform worker to refill
+                            Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName());
+                            System.out.println("Worker " + selectedWorker + " selected to refill atm ");
+                            //Clear workers available for next refill iteration
+                            workersAvailable.clear();
+                        }
+
+                        break;
                     }else{
                         block();
+                        break;
                     }
 
             }
 
+        }
+
+        public  AID selectWorker() {
+            AID bestWorker = null;
+            Integer bestDist = Integer.MAX_VALUE;
+
+            for(AID worker:workersAvailable.keySet()){
+                Integer dist = workersAvailable.get(worker).getDistance(atmPos);
+                if(dist < bestDist){
+                    bestDist = dist;
+                    bestWorker = worker;
+                }
+            }
+
+            return bestWorker;
         }
 
         public boolean done(){
@@ -151,7 +173,7 @@ public class Companies extends Agent {
             ACLMessage atmRequest = myAgent.receive(replyTemplate);
 
             if(atmRequest != null){
-
+                //System.out.println("Company received initial-company message");
                 Companies company = (Companies) myAgent;
 
                 AID atm = atmRequest.getSender();

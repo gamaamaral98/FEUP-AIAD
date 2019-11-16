@@ -56,12 +56,12 @@ public class NationalBank {
             Integer workerNumber = 0;
 
             String workerName =companyName + "-worker-"+workerNumber++;
-            Workers worker = new Workers(workerName,companyName,new Position(),400);
+            Workers worker = new Workers(workerName,companyName,new Position(),4000);
             AgentController workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
 
             workerName =companyName + "-worker-"+workerNumber++;
-            worker = new Workers(workerName,companyName,new Position(),400);
+            worker = new Workers(workerName,companyName,new Position(),4000);
             workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
         }
@@ -76,21 +76,21 @@ public class NationalBank {
         ArrayList<ATMs> atms = new ArrayList<>();
 
         for (String atmName:atmsNames) {
-            ATMs atm = new ATMs(atmName,300,200,800,new Position());
+            ATMs atm = new ATMs(atmName,300,500,800,new Position());
             atms.add(atm);
             AgentController atmController = this.container.acceptNewAgent(atmName,atm);
             atmController.start();
         }
 
-        sleep(100);
+        sleep(1000);
 
-        Clients client1 = new Clients("client1",200,500,atms.get(0).position);
+        Clients client1 = new Clients("client1",500,1000,atms.get(0).position);
         AgentController clientController = this.container.acceptNewAgent("client1",client1);
         clientController.start();
 
-        Clients client2 = new Clients("client2",200,500,atms.get(0).position);
+       /* Clients client2 = new Clients("client2",200,500,atms.get(0).position);
         clientController = this.container.acceptNewAgent("client2",client2);
-        clientController.start();
+        clientController.start();*/
 
 
 

@@ -67,4 +67,16 @@ public class Position {
     public Integer getDistance(Position position) {
         return Math.abs(this.x - position.x) + Math.abs(this.y-position.y);
     }
+
+    public String toStringMsg(){
+        return (x + "," + y);
+    }
+
+    @Override
+    public String toString() {
+        return "Position{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

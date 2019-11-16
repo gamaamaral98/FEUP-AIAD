@@ -3,6 +3,8 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import jdk.jshell.execution.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +47,7 @@ public class Workers extends Agent {
 
         //addBehaviour(new refillATMBehaviour());
         addBehaviour(new registerToCompanyBehaviour());
-
+        addBehaviour(new refillATMBehaviour());
         System.out.println("Created worker: " + this.toString());
     }
 
@@ -85,27 +87,27 @@ public class Workers extends Agent {
 
     public class refillATMBehaviour extends CyclicBehaviour {
         public void action() {
-            ACLMessage msg = myAgent.receive();
+            MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
+            ACLMessage msg = myAgent.receive(refill);
 
             if(msg != null){
 
-                amountRefill = Integer.parseInt(msg.getContent());
+                if(msg.getPerformative() == ACLMessage.PROPOSE){
+                    System.out.println("Worker " + myAgent.getName() + " received message to refill");
+                    AID company = msg.getSender();
+                    Workers worker = (Workers) myAgent;
+                    amountRefill = Integer.parseInt(msg.getContent());
 
-                ACLMessage reply = msg.createReply();
-                reply.setPerformative(ACLMessage.INFORM);
+                    if(amountRefill <= moneyAvailable){
+                        Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"company-response",company,worker.position.toStringMsg());
 
-                if(amountRefill <= moneyAvailable){
-
-                    reply.setContent("Positive");
-                    reply.setConversationId("response-company");
-                    myAgent.send(reply);
-
-                }else{
-
-                    reply.setContent("Negative");
-                    reply.setConversationId("response-company");
-                    myAgent.send(reply);
-
+                    }else{
+                        Utils.sendRequest(myAgent,ACLMessage.CANCEL,"company-response",company,"");
+                    }
+                }else if(msg.getPerformative() == ACLMessage.CONFIRM){
+                    AID atm = new AID(msg.getContent(),AID.ISLOCALNAME);
+                    System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
+                    //TO_DO cenas para dizer que tem de ir e sleep e assim
                 }
 
             }else{

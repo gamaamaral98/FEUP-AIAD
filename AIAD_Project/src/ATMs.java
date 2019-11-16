@@ -15,6 +15,8 @@ import jdk.jshell.execution.Util;
 
 import java.util.HashMap;
 
+import static java.lang.Thread.sleep;
+
 /*
     Example on how to call a Client-Agent:
         jade.Boot atm:ATMs(2000,500,4000)
@@ -76,7 +78,6 @@ public class ATMs extends Agent {
                 case 0:
                     MessageTemplate mt = MessageTemplate.MatchConversationId("withdraw-attempt");
                     ACLMessage withdrawMsg = myAgent.receive(mt);
-                    System.out.println(withdrawMsg);
                     if (withdrawMsg != null) {
 
                         String content = withdrawMsg.getContent();
@@ -122,11 +123,17 @@ public class ATMs extends Agent {
 
                     Integer moneyNeeded = (atm.maxRefillAmount - atm.moneyAvailable);
 
-                    //Inform worker
+                    //Inform company
+                    String args = atm.position.toStringMsg() + "," + moneyNeeded.toString();
+                    try {
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     Utils.sendRequest(
-                            atm, ACLMessage.INFORM, "refill-request",
-                            atm.currentCompany, moneyNeeded.toString());
-
+                            atm, ACLMessage.REQUEST, "refill-request",
+                            atm.currentCompany, args);
+                    System.out.println("ATM " + myAgent.getName() + " sent refill request to " + atm.currentCompany.getName());
                     step = 2;
                     break;
 
@@ -143,6 +150,7 @@ public class ATMs extends Agent {
                             //New company sends notice to propagate information
                             atm.currentCompany = response.getSender();
                             block();
+                            break;
                         }
                         //Worker refilled
                         else if (response.getPerformative() == ACLMessage.CONFIRM) {
@@ -195,8 +203,8 @@ public class ATMs extends Agent {
 
             ATMs atm = (ATMs) myAgent;
             HashMap<AID, ATMWorkerChoice> closestCompanyWorkerFromATM = new HashMap<>();
-
-            while (closestCompanyWorkerFromATM.size() != companies.length) {
+            Integer negativeRsp = 0;
+            while (closestCompanyWorkerFromATM.size() + negativeRsp != companies.length) {
                 MessageTemplate replyTemplate = MessageTemplate.MatchConversationId("initial-company");
                 ACLMessage companyReply = myAgent.receive(replyTemplate);
 
@@ -210,11 +218,11 @@ public class ATMs extends Agent {
                         distance = Integer.parseInt(companyReply.getContent().split(",")[1]);
 
                     } else if (companyReply.getPerformative() == ACLMessage.FAILURE) {
-
+                        negativeRsp++;
                     }
 
-                    if (closestCompanyWorkerFromATM.put(worker, new ATMWorkerChoice(worker, distance)) != null)
-                        System.out.println("In ATMs/GetInitialProposalsBehaviour - It seems that the same atm was registered\n");
+                    if (closestCompanyWorkerFromATM.put(company, new ATMWorkerChoice(worker, distance)) != null)
+                        System.out.println("In ATMs/GetInitialProposalsBehaviour - It seems that the same atm was registered "+ atm.getAID().getName()+"\n");
 
                     System.out.println("Received response from " + company.toString());
                 } else {
@@ -222,7 +230,9 @@ public class ATMs extends Agent {
                 }
             }
             Integer lastDistance = Integer.MAX_VALUE;
+            System.out.println(closestCompanyWorkerFromATM);
             for (AID aid : closestCompanyWorkerFromATM.keySet()) {
+                System.out.println(aid);
                 ATMWorkerChoice choice = closestCompanyWorkerFromATM.get(aid);
                 if (choice == null)
                     continue;
@@ -232,6 +242,7 @@ public class ATMs extends Agent {
                 if (dist < lastDistance)
                     atm.currentCompany = aid;
             }
+
 
             if (atm.currentCompany == null) {
                 System.out.println("Couldn't assign a company, something unexpected happened, terminating atm\n");
