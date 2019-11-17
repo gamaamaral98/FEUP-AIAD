@@ -156,6 +156,7 @@ public class ATMs extends Agent {
                         //Worker refilled
                         else if (response.getPerformative() == ACLMessage.CONFIRM) {
                             atm.moneyAvailable += Integer.parseInt(response.getContent());
+                            System.out.println("ATM "+ myAgent.getName() + " now has "+ ((ATMs) myAgent).moneyAvailable );
                             step=0;
                         }
                     } else {

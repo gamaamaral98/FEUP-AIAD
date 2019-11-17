@@ -23,7 +23,6 @@ public class NationalBank {
 
         //Create default profile
         this.profile = new ProfileImpl(true);
-
         // Create a new non-main container, connecting to the default
         // main container (i.e. on this host, port 1099)
         //ContainerController cc = jade.createAgentContainer(p);
@@ -60,10 +59,10 @@ public class NationalBank {
             AgentController workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
 
-            workerName =companyName + "-worker-"+workerNumber++;
+          /*  workerName =companyName + "-worker-"+workerNumber++;
             worker = new Workers(workerName,companyName,new Position(),4000);
             workerController = this.container.acceptNewAgent(workerName,worker);
-            workerController.start();
+            workerController.start();*/
         }
 
         String atmsNames[] = {
@@ -71,12 +70,12 @@ public class NationalBank {
                 "sao joao"
         };
 
-        sleep(100);
+        sleep(1000);
 
         ArrayList<ATMs> atms = new ArrayList<>();
 
         for (String atmName:atmsNames) {
-            ATMs atm = new ATMs(atmName,300,500,800,new Position());
+            ATMs atm = new ATMs(atmName,100,500,800,new Position());
             atms.add(atm);
             AgentController atmController = this.container.acceptNewAgent(atmName,atm);
             atmController.start();

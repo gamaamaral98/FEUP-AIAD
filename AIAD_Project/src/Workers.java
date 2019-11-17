@@ -98,12 +98,13 @@ public class Workers extends Agent {
             if(msg != null){
 
                 if(msg.getPerformative() == ACLMessage.PROPOSE){
+
                     System.out.println("Worker " + myAgent.getName() + " received message to refill");
                     AID company = msg.getSender();
                     Workers worker = (Workers) myAgent;
                     amountRefill = Integer.parseInt(msg.getContent());
 
-                    if(amountRefill <= moneyAvailable){
+                    if(amountRefill <= moneyAvailable && destiny ==null){
                         Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"company-response",company,worker.position.toStringMsg());
                     }else{
                         Utils.sendRequest(myAgent,ACLMessage.CANCEL,"company-response",company,"");
@@ -158,6 +159,7 @@ public class Workers extends Agent {
                 e.printStackTrace();
             }
         }
+        destiny=null;
     }
 
 

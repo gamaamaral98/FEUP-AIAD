@@ -128,11 +128,18 @@ public class Companies extends Agent {
                             //Companies company = (Companies) myAgent;
                             AID selectedWorker = selectWorker();
 
-                            //inform worker to refill
-                            Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName() + "\\" + atmPos.toStringMsg());
-                            System.out.println("Worker " + selectedWorker + " selected to refill atm ");
+                            if(selectedWorker == null){
+                                System.out.println("No worker available, auctioning atm " + atm.getLocalName());
+                                myAgent.addBehaviour(new AuctionATM());
+                            }else{
+                                //inform worker to refill
+                                Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName() + "\\" + atmPos.toStringMsg());
+                                System.out.println("Worker " + selectedWorker + " selected to refill atm ");
+                            }
+
                             //Clear workers available for next refill iteration
                             workersAvailable.clear();
+                            step=0;
                         }
 
                         break;
@@ -164,6 +171,33 @@ public class Companies extends Agent {
             return (step == 2);
         }
 
+    }
+
+    private class AuctionATM extends Behaviour{
+        public Integer step = 0;
+        @Override
+        public void action() {
+            switch (step){
+                case 0:
+                    //Send messages to companies to initiate auction
+                    Companies company = (Companies) myAgent;
+                    AID companies[] = company.yellowPagesMiddleware.getAgentList("company");
+                    System.out.println("Found " + companies.length + " companies");
+                    step =1;
+                    break;
+                case 1:
+                    //Dormir 1 seg
+                    //Se tiver mensagem processar e guardar
+                    //Senão, terminar leilão
+                    //sleep(1000);
+
+            }
+        }
+
+        @Override
+        public boolean done() {
+            return step==1;
+        }
     }
 
     private class ListenForATMsBehaviour extends CyclicBehaviour {
