@@ -8,6 +8,9 @@ import jdk.jshell.execution.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
+
+import java.lang.Thread.*;
 
 /*
     Example on how to call a Client-Agent:
@@ -29,8 +32,10 @@ public class Workers extends Agent {
     private Integer moneyAvailable;
 
     private YellowPagesMiddleware yellowPagesMiddleware;
-    public Position position;
 
+    public Position position;
+    private Position destiny;
+    
     public Workers(String workerName, String companyName, Position position, Integer moneyAvailable){
         this.position =position;
         this.company = new AID(companyName,AID.ISLOCALNAME);
@@ -96,10 +101,22 @@ public class Workers extends Agent {
                     System.out.println("Worker " + myAgent.getName() + " received message to refill");
                     AID company = msg.getSender();
                     Workers worker = (Workers) myAgent;
-                    amountRefill = Integer.parseInt(msg.getContent());
+                    int sep = msg.getContent().indexOf("\\");
+                    if(sep == -1){
+                        System.out.println("Error unknown message type");
+                    }
+                    amountRefill = Integer.parseInt(msg.getContent().substring(0,sep));
 
                     if(amountRefill <= moneyAvailable){
                         Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"company-response",company,worker.position.toStringMsg());
+                        destiny = new Position(msg.getContent().substring(sep+1));
+                        try {
+                            travelling();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        System.out.println("Dar o dinheiro");
 
                     }else{
                         Utils.sendRequest(myAgent,ACLMessage.CANCEL,"company-response",company,"");
@@ -114,6 +131,44 @@ public class Workers extends Agent {
                 block();
             }
         }
+    }
+    
+    private void travelling() throws InterruptedException{
+        while(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
+            if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
+
+                Random r = new Random();
+                if(r.nextInt() % 2 == 0){
+                    this.changeX();
+                }else
+                    this.changeY();
+            }else if (destiny.getX() != position.getX()){
+                this.changeX();
+            }else {
+                this.changeY();
+            }
+            System.out.println("postion" + position + " destiny: "+ destiny);
+
+            try{
+                Thread.sleep(500);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    private void changeX(){
+        if(destiny.getX() > position.getX()){
+            position.setX(position.getX()+1);
+        }else
+            position.setX(position.getX()-1);
+    }
+    private void changeY(){
+        if(destiny.getY() > position.getY()){
+            position.setY(position.getY()+1);
+        }else
+            position.setY(position.getY()-1);
     }
 
     private class registerToCompanyBehaviour extends OneShotBehaviour {
