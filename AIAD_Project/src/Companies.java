@@ -93,7 +93,7 @@ public class Companies extends Agent {
 
                             refillRequest.setPerformative(ACLMessage.PROPOSE);
                             refillRequest.setConversationId("refill-request");
-                            refillRequest.setContent(amount.toString() + "\\" + atmPos);
+                            refillRequest.setContent(amount.toString() + "\\" + atmPos.toStringMsg());
                             myAgent.send(refillRequest);
 
                             step = 1;
