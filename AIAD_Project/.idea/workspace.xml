@@ -4,18 +4,14 @@
     <list default="true" id="15af5b41-032f-46d7-b9e2-8145f1f285bd" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$ListenForATMsBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$ListenForATMsBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$RequestPerformer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$RequestPerformer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$WorkerRegistrationBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies$WorkerRegistrationBehaviour.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Companies.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Companies.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$refillATMBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$refillATMBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$registerToCompanyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers$registerToCompanyBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/Workers.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/Workers.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ATMs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ATMs.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Companies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Companies.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NationalBank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/NationalBank.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Workers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Workers.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -98,7 +94,7 @@
       <updated>1571221115373</updated>
       <workItem from="1573685534457" duration="27856000" />
       <workItem from="1573766127171" duration="1626000" />
-      <workItem from="1573783282425" duration="31646000" />
+      <workItem from="1573783282425" duration="35727000" />
     </task>
     <servers />
   </component>
@@ -123,7 +119,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/Workers.java</url>
-          <line>90</line>
+          <line>126</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">

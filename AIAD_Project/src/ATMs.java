@@ -79,7 +79,7 @@ public class ATMs extends Agent {
                     MessageTemplate mt = MessageTemplate.MatchConversationId("withdraw-attempt");
                     ACLMessage withdrawMsg = myAgent.receive(mt);
                     if (withdrawMsg != null) {
-
+                        System.out.println("Received withdraw attempt");
                         String content = withdrawMsg.getContent();
 
                         Position positionOfClient = new Position(content.split(",")[1], content.split(",")[2]);
@@ -141,23 +141,29 @@ public class ATMs extends Agent {
                 //Received money
                 case 2:
 
-                    MessageTemplate refillTriggered = MessageTemplate.MatchConversationId("resolved-refill");
-                    ACLMessage response = myAgent.receive(refillTriggered);
+                    /*MessageTemplate refillTriggered = MessageTemplate.MatchConversationId("resolved-refill");
+                    ACLMessage response = myAgent.receive(refillTriggered);*/
+                    ACLMessage response = myAgent.receive();
 
                     if (response != null) {
-
-                        //Company sold rights to the atm, now needs to wait for another
-                        if (response.getPerformative() == ACLMessage.PROPAGATE) {
-                            //New company sends notice to propagate information
-                            atm.currentCompany = response.getSender();
-                            block();
-                            break;
-                        }
-                        //Worker refilled
-                        else if (response.getPerformative() == ACLMessage.CONFIRM) {
-                            atm.moneyAvailable += Integer.parseInt(response.getContent());
-                            System.out.println("ATM "+ myAgent.getName() + " now has "+ ((ATMs) myAgent).moneyAvailable );
-                            step=0;
+                        if(response.getConversationId() == "resolved-refill"){
+                            //Company sold rights to the atm, now needs to wait for another
+                            if (response.getPerformative() == ACLMessage.PROPAGATE) {
+                                //New company sends notice to propagate information
+                                atm.currentCompany = response.getSender();
+                                block();
+                                break;
+                            }
+                            //Worker refilled
+                            else if (response.getPerformative() == ACLMessage.CONFIRM) {
+                                atm.moneyAvailable += Integer.parseInt(response.getContent());
+                                System.out.println("ATM "+ myAgent.getName() + " now has "+ ((ATMs) myAgent).moneyAvailable );
+                                step=0;
+                            }
+                        } else if(response.getConversationId() == "withdraw-attempt"){
+                            Utils.sendRequest(atm,
+                                    ACLMessage.FAILURE, "withdraw-attempt",
+                                    response.getSender(), "");
                         }
                     } else {
                         block();

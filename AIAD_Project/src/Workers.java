@@ -1,7 +1,9 @@
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jdk.jshell.execution.Util;
@@ -83,6 +85,40 @@ public class Workers extends Agent {
     }
 
 
+    public class Travelling extends TickerBehaviour {
+        private final Integer amoutRefill;
+        private final AID atmAID;
+
+        public Travelling(Agent a, long period,AID atmAID, Integer amountRefill) {
+            super(a, period);
+            this.atmAID = atmAID;
+            this.amoutRefill = amountRefill;
+        }
+
+        @Override
+        protected void onTick() {
+            if(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
+                if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
+
+                    Random r = new Random();
+                    if(r.nextInt() % 2 == 0){
+                        changeX();
+                    }else
+                        changeY();
+                }else if (destiny.getX() != position.getX()){
+                    changeX();
+                }else {
+                    changeY();
+                }
+                System.out.println("postion" + position + " destiny: "+ destiny);
+            }else{
+                destiny=null;
+                Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
+                this.stop();
+            }
+        }
+    }
+
     /*
         Worker receives msg from the company with the ATM and amount to refill.
         Worker sees if he has enough money.
@@ -92,6 +128,7 @@ public class Workers extends Agent {
 
     public class refillATMBehaviour extends CyclicBehaviour {
         public void action() {
+            System.out.println("In refillATMBehaviour");
             MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
             ACLMessage msg = myAgent.receive(refill);
 
@@ -119,16 +156,13 @@ public class Workers extends Agent {
                     }
 
                     destiny = new Position(msg.getContent().substring(sep+1));
-                    try {
-                        travelling();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
 
                     AID atmAID = new AID(msg.getContent().substring(0,sep), AID.ISGUID);
-                    Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
 
-                    System.out.println(atmAID);
+
+                    Travelling travelling = new Travelling(myAgent,500,atmAID, amountRefill);
+                    myAgent.addBehaviour(travelling);
                 }
 
             }else{

@@ -108,7 +108,7 @@ public class Companies extends Agent {
 
                 //Awaits for workers messages
                 case 1:
-
+                    System.out.println("Waiting worker message");
                     MessageTemplate mtCompany = MessageTemplate.MatchConversationId("company-response");
                     ACLMessage workersReply = myAgent.receive(mtCompany);
 
@@ -140,6 +140,7 @@ public class Companies extends Agent {
                             //Clear workers available for next refill iteration
                             workersAvailable.clear();
                             step=0;
+                            System.out.println("Ended search for workers");
                         }
 
                         break;
