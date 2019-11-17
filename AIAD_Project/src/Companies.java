@@ -93,7 +93,7 @@ public class Companies extends Agent {
 
                             refillRequest.setPerformative(ACLMessage.PROPOSE);
                             refillRequest.setConversationId("refill-request");
-                            refillRequest.setContent(amount.toString() + "\\" + atmPos.toStringMsg());
+                            refillRequest.setContent(amount.toString());
                             myAgent.send(refillRequest);
 
                             step = 1;
@@ -129,7 +129,7 @@ public class Companies extends Agent {
                             AID selectedWorker = selectWorker();
 
                             //inform worker to refill
-                            Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName());
+                            Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName() + "\\" + atmPos.toStringMsg());
                             System.out.println("Worker " + selectedWorker + " selected to refill atm ");
                             //Clear workers available for next refill iteration
                             workersAvailable.clear();

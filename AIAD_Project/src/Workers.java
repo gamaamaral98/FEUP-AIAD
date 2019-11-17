@@ -101,30 +101,33 @@ public class Workers extends Agent {
                     System.out.println("Worker " + myAgent.getName() + " received message to refill");
                     AID company = msg.getSender();
                     Workers worker = (Workers) myAgent;
-                    int sep = msg.getContent().indexOf("\\");
-                    if(sep == -1){
-                        System.out.println("Error unknown message type");
-                    }
-                    amountRefill = Integer.parseInt(msg.getContent().substring(0,sep));
+                    amountRefill = Integer.parseInt(msg.getContent());
 
                     if(amountRefill <= moneyAvailable){
                         Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"company-response",company,worker.position.toStringMsg());
-                        destiny = new Position(msg.getContent().substring(sep+1));
-                        try {
-                            travelling();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        System.out.println("Dar o dinheiro");
-
                     }else{
                         Utils.sendRequest(myAgent,ACLMessage.CANCEL,"company-response",company,"");
                     }
                 }else if(msg.getPerformative() == ACLMessage.CONFIRM){
                     AID atm = new AID(msg.getContent(),AID.ISLOCALNAME);
                     System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
-                    //TO_DO cenas para dizer que tem de ir e sleep e assim
+
+                    int sep = msg.getContent().indexOf("\\");
+                    if(sep == -1){
+                        System.out.println("Error unknown message type");
+                    }
+
+                    destiny = new Position(msg.getContent().substring(sep+1));
+                    try {
+                        travelling();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    AID atmAID = new AID(msg.getContent().substring(0,sep), AID.ISGUID);
+                    Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
+
+                    System.out.println(atmAID);
                 }
 
             }else{

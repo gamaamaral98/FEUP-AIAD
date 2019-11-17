@@ -161,7 +161,7 @@ public class ATMs extends Agent {
                     } else {
                         block();
                     }
-                    break;
+                    //break;
 
             }
 
