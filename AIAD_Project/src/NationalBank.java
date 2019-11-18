@@ -83,7 +83,6 @@ public class NationalBank {
                     MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
                     AgentController printerController = this.container.acceptNewAgent("printer",printer);
                     printerController.start();
-                    System.out.println(printerController.getName());
 
                     sleep(1000);
 
@@ -143,6 +142,115 @@ public class NationalBank {
                         clientController.start();
 
                         i++;
+                    }
+                    break;
+                case 2:
+                    String companiesNames2[] = {
+                            "sibs",
+                            "banco de portugal",
+                            "novo banco",
+                            "montepio"
+                    };
+
+                    Integer aggressiveness2[] = {
+                            10,
+                            10,
+                            10,
+                            10,
+                    };
+
+                    Position CompaniesPos2[] = {
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                    };
+
+                    Position ATMPos2[] = {
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                    };
+
+                    MapPrinter printer2 = new MapPrinter(ATMPos2,CompaniesPos2);
+                    AgentController printerController2 = this.container.acceptNewAgent("printer",printer2);
+                    printerController2.start();
+
+                    sleep(1000);
+
+                    for (int j = 0; j < companiesNames2.length;j++) {
+                        String companyName = companiesNames2[j];
+                        Integer agress = aggressiveness2[j];
+                        Companies company = new Companies(companyName,20000,agress);
+                        AgentController companyController = this.container.acceptNewAgent(companyName,company);
+                        companyController.start();
+
+                        Integer workerNumber = 0;
+
+                        String workerName = companyName + "-worker-" + workerNumber++;
+                        Workers worker = new Workers(workerName,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController workerController = this.container.acceptNewAgent(workerName,worker);
+                        workerController.start();
+
+                        String worker2Name = companyName + "-worker-" + workerNumber++;
+                        Workers worker2 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController worker2Controller = this.container.acceptNewAgent(worker2Name,worker2);
+                        worker2Controller.start();
+
+                        if(j == companiesNames2.length-1){
+                            String worker3Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker3 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker3Controller = this.container.acceptNewAgent(worker3Name,worker3);
+                            worker3Controller.start();
+
+                            String worker4Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker4 = new Workers(worker4Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker4Controller = this.container.acceptNewAgent(worker4Name,worker4);
+                            worker4Controller.start();
+                        }
+                    }
+
+                    String atmsNames2[] = {
+                            "feup",
+                            "sao joao",
+                            "aliados",
+                            "sao bento",
+                            "feup2",
+                            "sao joao2",
+                            "aliados2",
+                            "sao bento2",
+                    };
+
+                    sleep(1000);
+
+                    ArrayList<ATMs> atms2 = new ArrayList<>();
+
+                    for (int j = 0; j < atmsNames2.length; j++) {
+                        ATMs atm = new ATMs(atmsNames2[j],1000,2000,5000,ATMPos2[j]);
+                        atms2.add(atm);
+                        AgentController atmController = this.container.acceptNewAgent(atmsNames2[j],atm);
+                        atmController.start();
+                    }
+
+                    sleep(1000);
+
+                    Random random2 = new Random();
+                    int j = 0;
+                    while (j<atmsNames2.length){
+                        Clients client1 = new Clients("client1."+j,random2.nextInt(250)+750,1000,atms2.get(j).position);
+                        AgentController clientController = this.container.acceptNewAgent("client1."+j,client1);
+                        clientController.start();
+
+                        Clients client2 = new Clients("client2."+j,random2.nextInt(250)+750,1000,atms2.get(j).position);
+                        clientController = this.container.acceptNewAgent("client2."+j,client2);
+                        clientController.start();
+
+                        j++;
                     }
 
 
@@ -242,7 +350,7 @@ public class NationalBank {
     }
 
     public static void main(String args[]){
-        NationalBank nationalBank = new NationalBank(1);
+        NationalBank nationalBank = new NationalBank(2);
     }
 
 }
