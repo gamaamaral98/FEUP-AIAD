@@ -72,6 +72,8 @@ public class ATMs extends Agent {
         public void action() {
 
             ATMs atm = (ATMs) myAgent;
+            System.out.println(atm.atmName + ": " + atm.moneyAvailable);
+
             switch (step) {
 
                 //the ATM awaits for withdraw attempts

@@ -2,6 +2,7 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -35,7 +36,6 @@ public class Clients extends Agent {
     protected void setup() {
 
         System.out.println("Hello! Client-Agent " + getAID().getName() + " is ready!");
-
         if (money > wallet) {
             System.out.println("Money to withdraw bigger than bank account!");
             doDelete();
@@ -47,7 +47,7 @@ public class Clients extends Agent {
             this.yellowPagesMiddleware.register();
 
             addBehaviour(new atmResponse());
-            addBehaviour(new withdrawMoneyBehaviour());
+            addBehaviour(new withdrawMoneyBehaviour(this, Utils.MILLISSECONDS));
         }
 
         System.out.println("Created client: " + this.toStringInitial());
@@ -80,8 +80,14 @@ public class Clients extends Agent {
 
     /*
     This Behaviour simply represents the action for withdrawing money. */
-    public class withdrawMoneyBehaviour extends OneShotBehaviour {
-        public void action() {
+    public class withdrawMoneyBehaviour extends TickerBehaviour {
+
+        public withdrawMoneyBehaviour(Agent a, long period) {
+            super(a, period);
+        }
+
+        @Override
+        protected void onTick() {
             System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
 
             Clients client = ((Clients) myAgent);
@@ -95,7 +101,6 @@ public class Clients extends Agent {
                 Utils.sendRequest(
                         client, (ACLMessage.REQUEST), "withdraw-attempt", aid, Utils.createMessageString(args));
             }
-
         }
     }
 
@@ -118,14 +123,15 @@ public class Clients extends Agent {
                     client.wallet += money;
                     System.out.println(client.getAID().getName() + "now has " + client.wallet.toString() + "\n");
                     doDelete();
-                } else if (atmReply.getPerformative() == (ACLMessage.INFORM)) {
+                }
+                /*else if (atmReply.getPerformative() == (ACLMessage.INFORM)) {
                     System.out.println("Amount specified bigger than atm maximum withdraw amount ("
                             + content + ")\n");
                     doDelete();
                 } else if (atmReply.getPerformative() == (ACLMessage.FAILURE)) {
                     System.out.println("No money available, requesting refill. Come back later.\n");
                     doDelete();
-                }
+                }*/
             } else {
                 block();
             }

@@ -35,7 +35,7 @@ public class Companies extends Agent {
         //Register company to yellow pages
         this.yellowPagesMiddleware.register();
 
-        addBehaviour(new RemoveMoney(this,500));
+        addBehaviour(new RemoveMoney(this,Utils.MILLISSECONDS));
         addBehaviour(new AuctionHandler());
         addBehaviour(new RequestPerformer());
         addBehaviour(new ListenForATMsBehaviour());
@@ -74,9 +74,7 @@ public class Companies extends Agent {
         protected void onTick() {
 
             Companies company = (Companies) myAgent;
-            System.out.println("Company " + company.getAID().getLocalName() + " with money=" + company.money);
             company.money-= company.workers.size()*2;
-            System.out.println("Company " + company.getAID().getLocalName() + "  with money=" + company.money);
             if(company.money < 0){
                 System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
                 company.doDelete();
@@ -273,6 +271,7 @@ public class Companies extends Agent {
         private Integer decide(Integer lastBid) {
             Companies company = (Companies) myAgent;
             Integer maxBid = (((Companies) myAgent).money*20/100)*(100+ company.aggressiveness)/100;
+            System.out.println(myAgent.getName()+" max bid: " + maxBid);
 
             if(lastBid< maxBid){
                 return Math.min(maxBid,lastBid+100);
@@ -350,7 +349,7 @@ public class Companies extends Agent {
         }
 
         protected void onWake(){
-            addBehaviour(new AuctionATM(myAgent,200,atmAID));
+            addBehaviour(new AuctionATM(myAgent,Utils.MILLISSECONDS/2,atmAID));
         }
 
 

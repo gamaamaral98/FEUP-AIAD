@@ -102,17 +102,19 @@ public class Workers extends Agent {
         @Override
         protected void onTick() {
             if(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
-                if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
-                    Random r = new Random();
-                    if(r.nextInt() % 2 == 0){
-                        changeX();
-                    }else
-                        changeY();
-                }else if (destiny.getX() != position.getX()){
-                    changeX();
-                }else {
-                    changeY();
-                }
+                //if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
+                  //  Random r = new Random();
+                  //  if(r.nextInt() % 2 == 0){
+                  //      changeX();
+                  //  }else
+                 //       changeY();
+                //}else if (destiny.getX() != position.getX()){
+             //       changeX();
+             //   }else {
+             //       changeY();
+             //   }
+                position.setX(destiny.getX());
+                position.setY(destiny.getY());
                 System.out.println(myAgent.getName() +  " postion" + position + " destiny: "+ destiny);
             }else{
 
@@ -142,7 +144,7 @@ public class Workers extends Agent {
 
                 if (moneyAvailable <= 500) {
                     occupied = true;
-                    Travelling travelling = new Travelling(myAgent, 500, null, amountRefill, headQuarters);
+                    Travelling travelling = new Travelling(myAgent, Utils.MILLISSECONDS, null, amountRefill, headQuarters);
                     myAgent.addBehaviour(travelling);
                 } else {
                     MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
@@ -178,7 +180,7 @@ public class Workers extends Agent {
                             AID atmAID = new AID(msg.getContent().substring(0, sep), AID.ISGUID);
 
 
-                            Travelling travelling = new Travelling(myAgent, 500, atmAID, amountRefill, destiny);
+                            Travelling travelling = new Travelling(myAgent, Utils.MILLISSECONDS, atmAID, amountRefill, destiny);
                             myAgent.addBehaviour(travelling);
                         }
 

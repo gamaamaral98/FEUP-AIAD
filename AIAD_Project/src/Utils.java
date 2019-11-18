@@ -5,6 +5,8 @@ import jade.lang.acl.ACLMessage;
 
 public class Utils {
 
+    public static int MILLISSECONDS = 1000;
+
     public static enum withdrawActions{
         NO_MONEY_ATM,
         NO_MONEY_CLIENT;

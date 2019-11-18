@@ -37,6 +37,96 @@ public class NationalBank {
 
     }
 
+    public NationalBank(int cenario){
+        this.jade = Runtime.instance();
+
+        this.profile = new ProfileImpl(true);
+
+        this.container = jade.createMainContainer(this.profile);
+
+        try {
+            switch (cenario){
+                case 1:
+                    String companiesNames[] = {
+                            "sibs",
+                            "banco de portugal",
+                            "novo banco",
+                            "montepio"
+                    };
+
+                    Integer aggressiveness[] = {
+                            40,
+                            10,
+                            10,
+                            10,
+                    };
+
+                    for (int i = 0; i < companiesNames.length;i++) {
+                        String companyName = companiesNames[i];
+                        Integer agress = aggressiveness[i];
+                        Companies company = new Companies(companyName,20000,agress);
+                        AgentController companyController = this.container.acceptNewAgent(companyName,company);
+                        companyController.start();
+
+                        Integer workerNumber = 0;
+
+                        String workerName = companyName + "-worker-" + workerNumber++;
+                        Workers worker = new Workers(workerName,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController workerController = this.container.acceptNewAgent(workerName,worker);
+                        workerController.start();
+
+                        String worker2Name = companyName + "-worker-" + workerNumber++;
+                        Workers worker2 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController worker2Controller = this.container.acceptNewAgent(worker2Name,worker2);
+                        worker2Controller.start();
+                    }
+
+                    String atmsNames[] = {
+                            "feup",
+                            "sao joao",
+                            "aliados",
+                            "sao bento",
+                            "feup2",
+                            "sao joao2",
+                            "aliados2",
+                            "sao bento2",
+                    };
+
+                    sleep(1000);
+
+                    ArrayList<ATMs> atms = new ArrayList<>();
+
+                    for (String atmName:atmsNames) {
+                        ATMs atm = new ATMs(atmName,1000,2000,5000,new Position());
+                        atms.add(atm);
+                        AgentController atmController = this.container.acceptNewAgent(atmName,atm);
+                        atmController.start();
+                    }
+
+                    sleep(1000);
+
+                    Random random = new Random();
+                    int i = 0;
+                    while (i<atmsNames.length){
+                        Clients client1 = new Clients("client1."+i,random.nextInt(250)+750,1000,atms.get(i).position);
+                        AgentController clientController = this.container.acceptNewAgent("client1."+i,client1);
+                        clientController.start();
+
+                        Clients client2 = new Clients("client2."+i,random.nextInt(250)+750,1000,atms.get(i).position);
+                        clientController = this.container.acceptNewAgent("client2."+i,client2);
+                        clientController.start();
+
+                        i++;
+                    }
+
+
+            }
+        } catch (StaleProxyException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void createAgents() throws StaleProxyException, InterruptedException {
         //10,100,new Position(2,2)
         String companiesNames[] = {
@@ -106,6 +196,7 @@ public class NationalBank {
     }
 
     public static void main(String args[]){
-        NationalBank nationalBank = new NationalBank();
+        NationalBank nationalBank = new NationalBank(1);
     }
+
 }
