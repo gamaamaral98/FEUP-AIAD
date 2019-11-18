@@ -6,8 +6,6 @@ import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jdk.jshell.execution.Util;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -36,12 +34,17 @@ public class Workers extends Agent {
     private YellowPagesMiddleware yellowPagesMiddleware;
 
     public Position position;
+    public Position headQuarters;
     private Position destiny;
-    
-    public Workers(String workerName, String companyName, Position position, Integer moneyAvailable){
+
+    private Boolean occupied = false;
+
+    public Workers(String workerName, String companyName, Position position, Integer moneyAvailable, Position pos){
         this.position =position;
         this.company = new AID(companyName,AID.ISLOCALNAME);
         this.moneyAvailable = moneyAvailable;
+        this.headQuarters = pos;
+        this.destiny = position;
     }
 
     protected void setup() {
@@ -89,17 +92,17 @@ public class Workers extends Agent {
         private final Integer amoutRefill;
         private final AID atmAID;
 
-        public Travelling(Agent a, long period,AID atmAID, Integer amountRefill) {
+        public Travelling(Agent a, long period,AID atmAID, Integer amountRefill, Position pos) {
             super(a, period);
             this.atmAID = atmAID;
             this.amoutRefill = amountRefill;
+            destiny = pos;
         }
 
         @Override
         protected void onTick() {
             if(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
                 if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
-
                     Random r = new Random();
                     if(r.nextInt() % 2 == 0){
                         changeX();
@@ -110,10 +113,17 @@ public class Workers extends Agent {
                 }else {
                     changeY();
                 }
-                System.out.println("postion" + position + " destiny: "+ destiny);
+                System.out.println(myAgent.getName() +  " postion" + position + " destiny: "+ destiny);
             }else{
-                destiny=null;
-                Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
+
+                if(destiny == headQuarters){
+                    moneyAvailable = 5000;
+                    System.out.println("Worker " + myAgent.getName() + "refilled Van!\n");
+
+                }else{
+                    Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
+                }
+                occupied = false;
                 this.stop();
             }
         }
@@ -128,74 +138,76 @@ public class Workers extends Agent {
 
     public class refillATMBehaviour extends CyclicBehaviour {
         public void action() {
-            System.out.println("In refillATMBehaviour");
-            MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
-            ACLMessage msg = myAgent.receive(refill);
+            if(!occupied) {
 
-            if(msg != null){
-
-                if(msg.getPerformative() == ACLMessage.PROPOSE){
-
-                    System.out.println("Worker " + myAgent.getName() + " received message to refill");
-                    AID company = msg.getSender();
-                    Workers worker = (Workers) myAgent;
-                    amountRefill = Integer.parseInt(msg.getContent());
-
-                    if(amountRefill <= moneyAvailable && destiny ==null){
-                        Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"company-response",company,worker.position.toStringMsg());
-                    }else{
-                        Utils.sendRequest(myAgent,ACLMessage.CANCEL,"company-response",company,"");
-                    }
-                }else if(msg.getPerformative() == ACLMessage.CONFIRM){
-                    AID atm = new AID(msg.getContent(),AID.ISLOCALNAME);
-                    System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
-
-                    int sep = msg.getContent().indexOf("\\");
-                    if(sep == -1){
-                        System.out.println("Error unknown message type");
-                    }
-
-                    destiny = new Position(msg.getContent().substring(sep+1));
-
-
-                    AID atmAID = new AID(msg.getContent().substring(0,sep), AID.ISGUID);
-
-
-                    Travelling travelling = new Travelling(myAgent,500,atmAID, amountRefill);
+                if (moneyAvailable <= 500) {
+                    occupied = true;
+                    Travelling travelling = new Travelling(myAgent, 500, null, amountRefill, headQuarters);
                     myAgent.addBehaviour(travelling);
+                } else {
+                    MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
+                    ACLMessage msg = myAgent.receive(refill);
+
+                    if (msg != null) {
+
+                        if (msg.getPerformative() == ACLMessage.PROPOSE) {
+
+                            System.out.println("Worker " + myAgent.getName() + " received message to refill");
+                            AID company = msg.getSender();
+                            Workers worker = (Workers) myAgent;
+                            amountRefill = Integer.parseInt(msg.getContent());
+
+                            if (amountRefill <= moneyAvailable && destiny.equals(position)) {
+                                Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "company-response", company, worker.position.toStringMsg());
+                            } else {
+                                Utils.sendRequest(myAgent, ACLMessage.CANCEL, "company-response", company, "");
+                            }
+                        } else if (msg.getPerformative() == ACLMessage.CONFIRM) {
+                            occupied = true;
+                            AID atm = new AID(msg.getContent(), AID.ISLOCALNAME);
+                            System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
+
+                            int sep = msg.getContent().indexOf("\\");
+                            if (sep == -1) {
+                                System.out.println("Error unknown message type");
+                            }
+
+                            destiny = new Position(msg.getContent().substring(sep + 1));
+
+
+                            AID atmAID = new AID(msg.getContent().substring(0, sep), AID.ISGUID);
+
+
+                            Travelling travelling = new Travelling(myAgent, 500, atmAID, amountRefill, destiny);
+                            myAgent.addBehaviour(travelling);
+                        }
+
+                    } else {
+                        block();
+                    }
                 }
-
             }else{
-                block();
+
+                MessageTemplate refill = MessageTemplate.MatchConversationId("refill-request");
+                ACLMessage msg = myAgent.receive(refill);
+
+                if (msg != null) {
+
+                    if (msg.getPerformative() == ACLMessage.PROPOSE) {
+
+                        System.out.println("Worker " + myAgent.getName() + " received message to refill but he is occupied!");
+                        AID company = msg.getSender();
+
+                        Utils.sendRequest(myAgent, ACLMessage.CANCEL, "company-response", company, "");
+
+                    }
+
+                } else {
+                    block();
+                }
             }
         }
     }
-    
-    private void travelling() throws InterruptedException{
-        while(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
-            if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
-
-                Random r = new Random();
-                if(r.nextInt() % 2 == 0){
-                    this.changeX();
-                }else
-                    this.changeY();
-            }else if (destiny.getX() != position.getX()){
-                this.changeX();
-            }else {
-                this.changeY();
-            }
-            System.out.println("postion" + position + " destiny: "+ destiny);
-
-            try{
-                Thread.sleep(500);
-            }catch (InterruptedException e){
-                e.printStackTrace();
-            }
-        }
-        destiny=null;
-    }
-
 
     private void changeX(){
         if(destiny.getX() > position.getX()){

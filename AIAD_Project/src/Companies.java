@@ -6,7 +6,6 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.core.behaviours.WakerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jdk.jshell.execution.Util;
 
 import java.sql.Array;
 import java.util.*;
@@ -20,6 +19,7 @@ public class Companies extends Agent {
     //List of ATMs that belong to the company
     //private AID[] ATMs;
     public Integer aggressiveness;
+    public Position headQuarters = new Position();
 
     public Companies(String id, Integer money, Integer aggressiveness){
         this.id=id;
@@ -35,6 +35,7 @@ public class Companies extends Agent {
         //Register company to yellow pages
         this.yellowPagesMiddleware.register();
 
+        addBehaviour(new RemoveMoney(this,500));
         addBehaviour(new AuctionHandler());
         addBehaviour(new RequestPerformer());
         addBehaviour(new ListenForATMsBehaviour());
@@ -63,6 +64,25 @@ public class Companies extends Agent {
                 '}';
     }
 
+    public class RemoveMoney extends TickerBehaviour{
+
+        public RemoveMoney(Agent a, long period) {
+            super(a, period);
+        }
+
+        @Override
+        protected void onTick() {
+
+            Companies company = (Companies) myAgent;
+            System.out.println("Company " + company.getAID().getLocalName() + " with money=" + company.money);
+            company.money-= company.workers.size()*2;
+            System.out.println("Company " + company.getAID().getLocalName() + "  with money=" + company.money);
+            if(company.money < 0){
+                System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
+                company.doDelete();
+            }
+        }
+    }
     private class RequestPerformer extends Behaviour {
 
         private AID atm;
@@ -86,6 +106,8 @@ public class Companies extends Agent {
 
                             company.sendRefillRequest(refill);
                             atm = refill.getSender();
+                            atmPos = new Position(refill.getContent());
+                            amount = Integer.parseInt(refill.getContent().split(",")[2]);
                             step = 1;
                             break;
 
@@ -104,7 +126,6 @@ public class Companies extends Agent {
 
                     if(workersReply != null){
                         AID worker = workersReply.getSender();
-
                         if(workersReply.getPerformative() == ACLMessage.CONFIRM){
                             Position workerPosition = new Position(workersReply.getContent());
                             System.out.println("Received confirm from worker to refill atm");
@@ -146,7 +167,6 @@ public class Companies extends Agent {
         public  AID selectWorker() {
             AID bestWorker = null;
             Integer bestDist = Integer.MAX_VALUE;
-
             for(AID worker:workersAvailable.keySet()){
                 Integer dist = workersAvailable.get(worker).getDistance(atmPos);
                 if(dist < bestDist){

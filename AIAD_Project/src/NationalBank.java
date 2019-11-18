@@ -64,8 +64,8 @@ public class NationalBank {
 
             Integer workerNumber = 0;
 
-            String workerName =companyName + "-worker-"+workerNumber++;
-            Workers worker = new Workers(workerName,companyName,new Position(),8000);
+            String workerName = companyName + "-worker-" + workerNumber++;
+            Workers worker = new Workers(workerName,companyName,new Position(),500, company.headQuarters);
             AgentController workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
 
