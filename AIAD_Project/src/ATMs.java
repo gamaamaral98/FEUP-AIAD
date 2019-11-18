@@ -121,20 +121,7 @@ public class ATMs extends Agent {
                 //case it doesn't have money
                 case 1:
 
-                    Integer moneyNeeded = (atm.maxRefillAmount - atm.moneyAvailable);
-
-                    //Inform company
-                    String args = atm.position.toStringMsg() + "," + moneyNeeded.toString();
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    Utils.sendRequest(
-                            atm, ACLMessage.REQUEST, "refill-request",
-                            atm.currentCompany, args);
-                    System.out.println("ATM " + myAgent.getName() + " sent refill request to " + atm.currentCompany.getLocalName());
+                    ((ATMs) myAgent).sendRequestToRefill();
                     step = 2;
                     break;
 
@@ -151,6 +138,7 @@ public class ATMs extends Agent {
                             if (response.getPerformative() == ACLMessage.PROPAGATE) {
                                 //New company sends notice to propagate information
                                 atm.currentCompany = response.getSender();
+                                ((ATMs) myAgent).sendRequestToRefill();
                                 block();
                                 break;
                             }
@@ -168,8 +156,6 @@ public class ATMs extends Agent {
                     } else {
                         block();
                     }
-                    //break;
-
             }
 
         }
@@ -177,6 +163,23 @@ public class ATMs extends Agent {
         public boolean done() {
             return (step == 3);
         }
+    }
+
+    private void sendRequestToRefill() {
+        Integer moneyNeeded = (this.maxRefillAmount - this.moneyAvailable);
+
+        //Inform company
+        String args = this.position.toStringMsg() + "," + moneyNeeded.toString();
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Utils.sendRequest(
+                this, ACLMessage.REQUEST, "refill-request",
+                this.currentCompany, args);
+        System.out.println("ATM " + this.getName() + " sent refill request to " + this.currentCompany.getLocalName());
     }
 
     public class InitialCompanyBehaviour extends OneShotBehaviour {

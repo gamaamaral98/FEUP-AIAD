@@ -41,21 +41,31 @@ public class NationalBank {
         //10,100,new Position(2,2)
         String companiesNames[] = {
                 "sibs",
-                "banco de portugal"
+                "banco de portugal",
+                "novo banco",
+                "montepio"
+        };
+        Integer aggressiveness[] = {
+                10,
+                20,
+                30,
+                40,
         };
 
         Random random = new Random();
 
-        for (String companyName:companiesNames) {
 
-            Companies company = new Companies(companyName);
+        for (int i = 0; i < companiesNames.length;i++) {
+            String companyName = companiesNames[i];
+            Integer agress = aggressiveness[i];
+            Companies company = new Companies(companyName,20000,agress);
             AgentController companyController = this.container.acceptNewAgent(companyName,company);
             companyController.start();
 
             Integer workerNumber = 0;
 
             String workerName =companyName + "-worker-"+workerNumber++;
-            Workers worker = new Workers(workerName,companyName,new Position(),4000);
+            Workers worker = new Workers(workerName,companyName,new Position(),8000);
             AgentController workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
 
@@ -75,7 +85,7 @@ public class NationalBank {
         ArrayList<ATMs> atms = new ArrayList<>();
 
         for (String atmName:atmsNames) {
-            ATMs atm = new ATMs(atmName,100,500,800,new Position());
+            ATMs atm = new ATMs(atmName,500,500,5000,new Position());
             atms.add(atm);
             AgentController atmController = this.container.acceptNewAgent(atmName,atm);
             atmController.start();
