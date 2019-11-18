@@ -35,25 +35,42 @@ public class Companies extends Agent {
         //Register company to yellow pages
         this.yellowPagesMiddleware.register();
 
+
+        addBehaviour(new WorkerMessageReceiver());
         addBehaviour(new RemoveMoney(this,Utils.MILLISSECONDS));
         addBehaviour(new AuctionHandler());
         addBehaviour(new RequestPerformer());
         addBehaviour(new ListenForATMsBehaviour());
         addBehaviour(new WorkerRegistrationBehaviour());
-        System.out.println("Created company: " + this.toString());
+        if(Utils.debug)System.out.println("Created company: " + this.toString());
     }
 
 
     private void getNearestWorkerWithAmountAvailable(Integer refillAmount, Position atmPos) {
     }
 
+    public class WorkerMessageReceiver extends CyclicBehaviour{
+
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchConversationId("refill-success");
+            ACLMessage refill = myAgent.receive(mt);
+
+            if(refill != null){
+                ((Companies) myAgent).money +=Integer.parseInt(refill.getContent());
+            }else{
+                block();
+            }
+
+        }
+    }
     //Agent clean-up operations
     protected void takeDown(){
 
         //Deregister from the yellow pages
         this.yellowPagesMiddleware.deregister();
 
-        System.out.println("Company-Agent " + getAID().getName() + " terminating");
+        if(Utils.debug)System.out.println("Company-Agent " + getAID().getName() + " terminating");
 
     }
 
@@ -74,9 +91,12 @@ public class Companies extends Agent {
         protected void onTick() {
 
             Companies company = (Companies) myAgent;
+
+            if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + " with money=" + company.money);
             company.money-= company.workers.size()*2;
+            if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + "  with money=" + company.money);
             if(company.money < 0){
-                System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
+                if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
                 company.doDelete();
             }
         }
@@ -98,7 +118,7 @@ public class Companies extends Agent {
                     ACLMessage refill = myAgent.receive(mt);
 
                     if(refill != null){
-                        System.out.println("Received refill request in company " + refill.toString());
+                        if(Utils.debug)System.out.println("Received refill request in company " + refill.toString());
                         if(refill.getPerformative() == ACLMessage.REQUEST){
                             Companies company = (Companies) myAgent;
 
@@ -118,7 +138,7 @@ public class Companies extends Agent {
 
                 //Awaits for workers messages
                 case 1:
-                    System.out.println("Waiting worker message");
+                    if(Utils.debug)System.out.println("Waiting worker message");
                     MessageTemplate mtCompany = MessageTemplate.MatchConversationId("company-response");
                     ACLMessage workersReply = myAgent.receive(mtCompany);
 
@@ -126,7 +146,7 @@ public class Companies extends Agent {
                         AID worker = workersReply.getSender();
                         if(workersReply.getPerformative() == ACLMessage.CONFIRM){
                             Position workerPosition = new Position(workersReply.getContent());
-                            System.out.println("Received confirm from worker to refill atm");
+                            if(Utils.debug)System.out.println("Received confirm from worker to refill atm");
                             workersAvailable.put(worker,workerPosition);
                         }else if(workersReply.getPerformative() == ACLMessage.CANCEL){
                             negativeRsp++;
@@ -138,18 +158,18 @@ public class Companies extends Agent {
                             AID selectedWorker = selectWorker();
 
                             if(selectedWorker == null){
-                                System.out.println("No worker available, auctioning atm " + atm.getLocalName());
+                                if(Utils.debug)System.out.println("No worker available, auctioning atm " + atm.getLocalName());
                                 myAgent.addBehaviour(new WakerAuctionATM(myAgent,1000,atm));
                             }else{
                                 //inform worker to refill
                                 Utils.sendRequest(myAgent,ACLMessage.CONFIRM,"refill-request",selectedWorker,atm.getName() + "\\" + atmPos.toStringMsg());
-                                System.out.println("Worker " + selectedWorker + " selected to refill atm ");
+                                if(Utils.debug)System.out.println("Worker " + selectedWorker + " selected to refill atm ");
                             }
 
                             //Clear workers available for next refill iteration
                             workersAvailable.clear();
                             step=0;
-                            System.out.println("Ended search for workers");
+                            if(Utils.debug)System.out.println("Ended search for workers");
                         }
 
                         break;
@@ -187,7 +207,7 @@ public class Companies extends Agent {
         Integer amount = Integer.parseInt(refill.getContent().split(",")[2]);
         Position atmPos = new Position(refill.getContent());
 
-        System.out.println("Company " + this.getName() + " received request to refill " + atm.getName());
+        if(Utils.debug)System.out.println("Company " + this.getName() + " received request to refill " + atm.getName());
 
         // Send workers a message
         ACLMessage refillRequest = new ACLMessage(ACLMessage.REQUEST);
@@ -215,17 +235,17 @@ public class Companies extends Agent {
                     ACLMessage msg = myAgent.receive(template);
 
                     if(msg != null){
-                        System.out.println("Received initiate-auction in " + myAgent.getAID().getLocalName());
+                        if(Utils.debug)System.out.println("Received initiate-auction in " + myAgent.getAID().getLocalName());
                         Integer bid = this.decide(0);
                         if(bid > 0){
                             step=1;
                             atmAID = new AID(msg.getContent(),AID.ISLOCALNAME);
                             Utils.sendRequest(myAgent,ACLMessage.PROPOSE,"auction-response",msg.getSender(),bid.toString());
-                            System.out.println("Sending auction-response");
+                            if(Utils.debug)System.out.println("Sending auction-response");
                         }else{
                             //Backed out
                             //Do nothing
-                            System.out.println(myAgent.getAID().getLocalName() + " backed out in 1st bid (" + msg.getContent() + ")");
+                            if(Utils.debug)System.out.println(myAgent.getAID().getLocalName() + " backed out in 1st bid (" + msg.getContent() + ")");
                         }
                     }else{
                         block();
@@ -241,6 +261,7 @@ public class Companies extends Agent {
                     if(res != null){
                         if(res.getPerformative() == ACLMessage.ACCEPT_PROPOSAL){
                             Utils.sendRequest(myAgent,ACLMessage.PROPAGATE,"resolved-refill",atmAID,"");
+                            ((Companies) myAgent).money -= Integer.parseInt(res.getContent());
                             step=2;
                         }else if(res.getPerformative() == ACLMessage.REJECT_PROPOSAL){
                             Integer lastBid = Integer.parseInt(res.getContent());
@@ -251,7 +272,7 @@ public class Companies extends Agent {
                             }else{
                                 //Backed out
                                 //Do nothing
-                                System.out.println(myAgent.getAID().getLocalName() + " backed out in bid (" + res.getContent() + ")");
+                                if(Utils.debug)System.out.println(myAgent.getAID().getLocalName() + " backed out in bid (" + res.getContent() + ")");
                                 step=0;
                             }
                         }
@@ -302,7 +323,7 @@ public class Companies extends Agent {
                     Companies company = (Companies) myAgent;
                     ArrayList<AID> companies =new ArrayList<AID>(Arrays.asList(company.yellowPagesMiddleware.getAgentList("company")));
                     companies.remove(myAgent.getAID());
-                    System.out.println("Found " + companies.size() + " companies to auction atm " + atmAID.getLocalName() + " which was from " + myAgent.getAID().getLocalName());
+                    if(Utils.debug)if(Utils.debug)System.out.println("Found " + companies.size() + " companies to auction atm " + atmAID.getLocalName() + " which was from " + myAgent.getAID().getLocalName());
 
                     for(AID companyAID:companies){
                        Utils.sendRequest(myAgent,ACLMessage.CFP,"initiate-auction",companyAID,atmAID.getLocalName());
@@ -322,15 +343,15 @@ public class Companies extends Agent {
                                     Utils.sendRequest(myAgent,ACLMessage.REJECT_PROPOSAL,"auction-response",bestCompanyProposalAID,bid.toString());
                                 bestBid = bid;
                                 bestCompanyProposalAID = companyProposal.getSender();
-                                System.out.println("Received new best proposal from " + bestCompanyProposalAID.getLocalName() + " with value " + bestBid);
+                                if(Utils.debug)if(Utils.debug)System.out.println("Received new best proposal from " + bestCompanyProposalAID.getLocalName() + " with value " + bestBid);
                             }else{
-                                System.out.println("Sending reject proposal to " + companyProposal.getSender().getLocalName());
+                                if(Utils.debug)if(Utils.debug)System.out.println("Sending reject proposal to " + companyProposal.getSender().getLocalName());
                                 Utils.sendRequest(myAgent,ACLMessage.REJECT_PROPOSAL,"auction-response",companyProposal.getSender(),bestBid.toString());
                             }
                         }
                     }else{
-                        Utils.sendRequest(myAgent,ACLMessage.ACCEPT_PROPOSAL,"auction-response",bestCompanyProposalAID,"");
-                        System.out.println("Ended auction giving atm " + atmAID.getLocalName() + " to " + bestCompanyProposalAID.getLocalName());
+                        Utils.sendRequest(myAgent,ACLMessage.ACCEPT_PROPOSAL,"auction-response",bestCompanyProposalAID,bestBid.toString());
+                        if(Utils.debug)System.out.println("Ended auction giving atm " + atmAID.getLocalName() + " to " + bestCompanyProposalAID.getLocalName());
                         this.stop();
                     }
                     break;
@@ -362,7 +383,7 @@ public class Companies extends Agent {
             ACLMessage atmRequest = myAgent.receive(replyTemplate);
 
             if(atmRequest != null){
-                //System.out.println("Company received initial-company message");
+                //if(Utils.debug)System.out.println("Company received initial-company message");
                 Companies company = (Companies) myAgent;
 
                 AID atm = atmRequest.getSender();
@@ -407,17 +428,19 @@ public class Companies extends Agent {
                 Companies company = (Companies) myAgent;
                 AID worker = workerRequest.getSender();
 
-                //Attention position has to be the first 2 arguments
-                Position position = new Position(workerRequest.getContent());
-                Integer moneyAvailable = Integer.parseInt(workerRequest.getContent().split(",")[2]);
-
                 if(workerRequest.getPerformative() == ACLMessage.REQUEST){
+                    //Attention position has to be the first 2 arguments
+                    Position position = new Position(workerRequest.getContent());
+                    Integer moneyAvailable = Integer.parseInt(workerRequest.getContent().split(",")[2]);
+
                     company.workers.put(worker,new WorkerInfo(position,moneyAvailable));
-                    System.out.println("Registered worker " + worker);
+                    if(Utils.debug)System.out.println("Registered worker " + worker);
                 }else if(workerRequest.getPerformative() == ACLMessage.CANCEL){
                     company.workers.remove(workerRequest.getSender());
-                    System.out.println("Deregistered worker " + worker);
+                    if(Utils.debug)System.out.println("Deregistered worker " + worker);
                 }
+
+
 
             }else{
                 block();

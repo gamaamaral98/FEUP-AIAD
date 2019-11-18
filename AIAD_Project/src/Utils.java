@@ -7,6 +7,12 @@ public class Utils {
 
     public static int MILLISSECONDS = 1000;
 
+    public static Integer mapSizeX = 10;
+    public static Integer mapSizeY = 100;
+
+    public static boolean debug = true;
+
+
     public static enum withdrawActions{
         NO_MONEY_ATM,
         NO_MONEY_CLIENT;

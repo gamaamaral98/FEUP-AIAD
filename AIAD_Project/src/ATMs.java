@@ -62,7 +62,7 @@ public class ATMs extends Agent {
         //Deregister from the yellow pages
         this.yellowPagesMiddleware.deregister();
 
-        System.out.println("ATM-Agent " + getAID().getName() + " terminating");
+        if(Utils.debug)System.out.println("ATM-Agent " + getAID().getName() + " terminating");
 
     }
 
@@ -81,7 +81,7 @@ public class ATMs extends Agent {
                     MessageTemplate mt = MessageTemplate.MatchConversationId("withdraw-attempt");
                     ACLMessage withdrawMsg = myAgent.receive(mt);
                     if (withdrawMsg != null) {
-                        System.out.println("Received withdraw attempt");
+                        if(Utils.debug)System.out.println("Received withdraw attempt");
                         String content = withdrawMsg.getContent();
 
                         Position positionOfClient = new Position(content.split(",")[1], content.split(",")[2]);
@@ -114,7 +114,7 @@ public class ATMs extends Agent {
                         atm.moneyAvailable -= moneyToWithdraw;
                         Utils.sendRequest(atm, ACLMessage.AGREE, conversationID, sender, "");
 
-                        System.out.println("ATM " + atm.getLocalName() + " now has " + atm.moneyAvailable + " available.\n");
+                        if(Utils.debug)System.out.println("ATM " + atm.getLocalName() + " now has " + atm.moneyAvailable + " available.\n");
                     } else {
                         block();
                     }
@@ -147,7 +147,7 @@ public class ATMs extends Agent {
                             //Worker refilled
                             else if (response.getPerformative() == ACLMessage.CONFIRM) {
                                 atm.moneyAvailable += Integer.parseInt(response.getContent());
-                                System.out.println("ATM "+ myAgent.getName() + " now has "+ ((ATMs) myAgent).moneyAvailable );
+                                if(Utils.debug)System.out.println("ATM "+ myAgent.getName() + " now has "+ ((ATMs) myAgent).moneyAvailable );
                                 step=0;
                             }
                         } else if(response.getConversationId() == "withdraw-attempt"){
@@ -181,7 +181,7 @@ public class ATMs extends Agent {
         Utils.sendRequest(
                 this, ACLMessage.REQUEST, "refill-request",
                 this.currentCompany, args);
-        System.out.println("ATM " + this.getName() + " sent refill request to " + this.currentCompany.getLocalName());
+        if(Utils.debug)System.out.println("ATM " + this.getName() + " sent refill request to " + this.currentCompany.getLocalName());
     }
 
     public class InitialCompanyBehaviour extends OneShotBehaviour {
@@ -203,7 +203,7 @@ public class ATMs extends Agent {
                 Utils.sendRequest(atm, messageType, conversationID, aid, args);
             }
 
-            System.out.println("Sent request to initial company to " + atm.companies.length + " companies");
+            if(Utils.debug)System.out.println("Sent request to initial company to " + atm.companies.length + " companies");
 
             atm.addBehaviour(new ATMStepBehaviour());
         }
@@ -213,7 +213,7 @@ public class ATMs extends Agent {
 
         @Override
         public void action() {
-            System.out.println("Starting recovery of initial company responses");
+            if(Utils.debug)System.out.println("Starting recovery of initial company responses");
 
             ATMs atm = (ATMs) myAgent;
             HashMap<AID, ATMWorkerChoice> closestCompanyWorkerFromATM = new HashMap<>();
@@ -236,17 +236,17 @@ public class ATMs extends Agent {
                     }
 
                     if (closestCompanyWorkerFromATM.put(company, new ATMWorkerChoice(worker, distance)) != null)
-                        System.out.println("In ATMs/GetInitialProposalsBehaviour - It seems that the same atm was registered "+ atm.getAID().getName()+"\n");
+                        if(Utils.debug)System.out.println("In ATMs/GetInitialProposalsBehaviour - It seems that the same atm was registered "+ atm.getAID().getName()+"\n");
 
-                    System.out.println("Received response from " + company.toString());
+                    if(Utils.debug)System.out.println("Received response from " + company.toString());
                 } else {
                     block();
                 }
             }
             Integer lastDistance = Integer.MAX_VALUE;
-            System.out.println(closestCompanyWorkerFromATM);
+            if(Utils.debug)System.out.println(closestCompanyWorkerFromATM);
             for (AID aid : closestCompanyWorkerFromATM.keySet()) {
-                System.out.println(aid);
+                if(Utils.debug)System.out.println(aid);
                 ATMWorkerChoice choice = closestCompanyWorkerFromATM.get(aid);
                 if (choice == null)
                     continue;
@@ -259,10 +259,10 @@ public class ATMs extends Agent {
 
 
             if (atm.currentCompany == null) {
-                System.out.println("Couldn't assign a company, something unexpected happened, terminating atm\n");
+                if(Utils.debug)System.out.println("Couldn't assign a company, something unexpected happened, terminating atm\n");
                 doDelete();
             } else {
-                System.out.println("Initial company to atm: " + atm.getAID() + "\n\t" + "Company: " + atm.currentCompany);
+                if(Utils.debug)System.out.println("Initial company to atm: " + atm.getAID() + "\n\t" + "Company: " + atm.currentCompany);
             }
         }
 

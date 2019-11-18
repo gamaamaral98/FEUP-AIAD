@@ -35,9 +35,10 @@ public class Clients extends Agent {
 
     protected void setup() {
 
-        System.out.println("Hello! Client-Agent " + getAID().getName() + " is ready!");
+        if(Utils.debug)System.out.println("Hello! Client-Agent " + getAID().getName() + " is ready!");
+
         if (money > wallet) {
-            System.out.println("Money to withdraw bigger than bank account!");
+            if(Utils.debug)System.out.println("Money to withdraw bigger than bank account!");
             doDelete();
         } else {
             //Create middleware for yellow pages
@@ -50,7 +51,7 @@ public class Clients extends Agent {
             addBehaviour(new withdrawMoneyBehaviour(this, Utils.MILLISSECONDS));
         }
 
-        System.out.println("Created client: " + this.toStringInitial());
+        if(Utils.debug)System.out.println("Created client: " + this.toStringInitial());
     }
 
     //Agent clean-up operations
@@ -62,7 +63,7 @@ public class Clients extends Agent {
             this.yellowPagesMiddleware.deregister();
 
 
-        System.out.println("Client-Agent " + getAID().getName() + " terminating");
+        if(Utils.debug)System.out.println("Client-Agent " + getAID().getName() + " terminating");
 
     }
 
@@ -80,6 +81,7 @@ public class Clients extends Agent {
 
     /*
     This Behaviour simply represents the action for withdrawing money. */
+
     public class withdrawMoneyBehaviour extends TickerBehaviour {
 
         public withdrawMoneyBehaviour(Agent a, long period) {
@@ -89,6 +91,8 @@ public class Clients extends Agent {
         @Override
         protected void onTick() {
             System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
+
+            if(Utils.debug)System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
 
             Clients client = ((Clients) myAgent);
 
@@ -114,22 +118,24 @@ public class Clients extends Agent {
             if (atmReply != null) {
                 String content = atmReply.getContent();
                 Clients client = (Clients) myAgent;
-                System.out.println("Received atm response " + atmReply.getSender());
-                System.out.println("Content: " + content);
+                if(Utils.debug)System.out.println("Received atm response " + atmReply.getSender());
+                if(Utils.debug)System.out.println("Content: " + content);
 
                 if (atmReply.getPerformative() == (ACLMessage.AGREE)) {
                     atmToWithdraw = (atmReply.getSender());
 
                     client.wallet += money;
-                    System.out.println(client.getAID().getName() + "now has " + client.wallet.toString() + "\n");
-                    doDelete();
+                    if(Utils.debug)System.out.println(client.getAID().getName() + "now has " + client.wallet.toString() + "\n");
+                    //doDelete();
+
                 }
-                /*else if (atmReply.getPerformative() == (ACLMessage.INFORM)) {
-                    System.out.println("Amount specified bigger than atm maximum withdraw amount ("
+                /*
+                } else if (atmReply.getPerformative() == (ACLMessage.INFORM)) {
+                    if(Utils.debug)System.out.println("Amount specified bigger than atm maximum withdraw amount ("
                             + content + ")\n");
                     doDelete();
                 } else if (atmReply.getPerformative() == (ACLMessage.FAILURE)) {
-                    System.out.println("No money available, requesting refill. Come back later.\n");
+                    if(Utils.debug)System.out.println("No money available, requesting refill. Come back later.\n");
                     doDelete();
                 }*/
             } else {

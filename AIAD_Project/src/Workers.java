@@ -26,7 +26,7 @@ public class Workers extends Agent {
     private Integer amountRefill;
 
     //Company he works for;
-    private AID company;
+    public AID company;
 
     //Amount available in the van
     private Integer moneyAvailable;
@@ -58,7 +58,8 @@ public class Workers extends Agent {
         //addBehaviour(new refillATMBehaviour());
         addBehaviour(new registerToCompanyBehaviour());
         addBehaviour(new refillATMBehaviour());
-        System.out.println("Created worker: " + this.toString());
+        addBehaviour(new UpdatePrinter(this,500));
+        if(Utils.debug)System.out.println("Created worker: " + this.toString());
     }
 
     //Agent clean-up operations
@@ -69,7 +70,7 @@ public class Workers extends Agent {
 
         this.alertCompany();
 
-        System.out.println("Worker-Agent " + getAID().getName() + " terminating");
+        if(Utils.debug)System.out.println("Worker-Agent " + getAID().getName() + " terminating");
 
     }
 
@@ -102,27 +103,27 @@ public class Workers extends Agent {
         @Override
         protected void onTick() {
             if(destiny.getX() != position.getX() || destiny.getY() != position.getY()){
-                //if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
-                  //  Random r = new Random();
-                  //  if(r.nextInt() % 2 == 0){
-                  //      changeX();
-                  //  }else
-                 //       changeY();
-                //}else if (destiny.getX() != position.getX()){
-             //       changeX();
-             //   }else {
-             //       changeY();
-             //   }
-                position.setX(destiny.getX());
-                position.setY(destiny.getY());
-                System.out.println(myAgent.getName() +  " postion" + position + " destiny: "+ destiny);
+
+                if(destiny.getX() != position.getX() && destiny.getY() != position.getY()){
+                    Random r = new Random();
+                    if(r.nextInt() % 2 == 0){
+                        changeX();
+                    }else
+                        changeY();
+                }else if (destiny.getX() != position.getX()){
+                    changeX();
+                }else {
+                    changeY();
+                }
+                if(Utils.debug)System.out.println(myAgent.getName() +  " postion" + position + " destiny: "+ destiny);
             }else{
 
                 if(destiny == headQuarters){
                     moneyAvailable = 5000;
-                    System.out.println("Worker " + myAgent.getName() + "refilled Van!\n");
+                    if(Utils.debug)System.out.println("Worker " + myAgent.getName() + "refilled Van!\n");
 
                 }else{
+                    Utils.sendRequest(myAgent,ACLMessage.INFORM,"refill-success",((Workers) myAgent).company,this.amoutRefill.toString());
                     Utils.sendRequest(myAgent, ACLMessage.CONFIRM, "resolved-refill", atmAID, amountRefill.toString());
                 }
                 occupied = false;
@@ -154,7 +155,7 @@ public class Workers extends Agent {
 
                         if (msg.getPerformative() == ACLMessage.PROPOSE) {
 
-                            System.out.println("Worker " + myAgent.getName() + " received message to refill");
+                            if(Utils.debug)System.out.println("Worker " + myAgent.getName() + " received message to refill");
                             AID company = msg.getSender();
                             Workers worker = (Workers) myAgent;
                             amountRefill = Integer.parseInt(msg.getContent());
@@ -167,11 +168,11 @@ public class Workers extends Agent {
                         } else if (msg.getPerformative() == ACLMessage.CONFIRM) {
                             occupied = true;
                             AID atm = new AID(msg.getContent(), AID.ISLOCALNAME);
-                            System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
+                            if(Utils.debug)System.out.println("Worker " + myAgent.getName() + " refilling " + atm.getName());
 
                             int sep = msg.getContent().indexOf("\\");
                             if (sep == -1) {
-                                System.out.println("Error unknown message type");
+                                if(Utils.debug)System.out.println("Error unknown message type");
                             }
 
                             destiny = new Position(msg.getContent().substring(sep + 1));
@@ -197,7 +198,7 @@ public class Workers extends Agent {
 
                     if (msg.getPerformative() == ACLMessage.PROPOSE) {
 
-                        System.out.println("Worker " + myAgent.getName() + " received message to refill but he is occupied!");
+                        if(Utils.debug)System.out.println("Worker " + myAgent.getName() + " received message to refill but he is occupied!");
                         AID company = msg.getSender();
 
                         Utils.sendRequest(myAgent, ACLMessage.CANCEL, "company-response", company, "");
@@ -235,8 +236,23 @@ public class Workers extends Agent {
                 String[] args = {worker.position.x.toString(),worker.position.y.toString(),worker.moneyAvailable.toString()};
                 Utils.sendRequest(worker,ACLMessage.REQUEST,"register-worker",worker.company,Utils.createMessageString(args));
             }else{
-                System.out.println("Tried to assign company " + worker.company +"to worker " + worker.getAID() + "but an error occurred");
+                if(Utils.debug)System.out.println("Tried to assign company " + worker.company +"to worker " + worker.getAID() + "but an error occurred");
             }
+        }
+    }
+
+    public class UpdatePrinter extends TickerBehaviour {
+
+        public UpdatePrinter(Agent a, long period) {
+            super(a, period);
+        }
+
+        @Override
+        protected void onTick() {
+            //worker-update
+            Workers worker = ((Workers) myAgent);
+            AID printer = worker.yellowPagesMiddleware.getAgentList("printer")[0];
+            Utils.sendRequest(myAgent,ACLMessage.INFORM,"worker-update",printer,worker.position.toStringMsg());
         }
     }
 }

@@ -1,3 +1,4 @@
+import jade.core.AID;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -61,6 +62,31 @@ public class NationalBank {
                             10,
                     };
 
+                    Position CompaniesPos[] = {
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                    };
+
+                    Position ATMPos[] = {
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                            new Position(),
+                    };
+
+                    MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
+                    AgentController printerController = this.container.acceptNewAgent("printer",printer);
+                    printerController.start();
+                    System.out.println(printerController.getName());
+
+                    sleep(1000);
+
                     for (int i = 0; i < companiesNames.length;i++) {
                         String companyName = companiesNames[i];
                         Integer agress = aggressiveness[i];
@@ -96,10 +122,10 @@ public class NationalBank {
 
                     ArrayList<ATMs> atms = new ArrayList<>();
 
-                    for (String atmName:atmsNames) {
-                        ATMs atm = new ATMs(atmName,1000,2000,5000,new Position());
+                    for (int i = 0; i < atmsNames.length; i++) {
+                        ATMs atm = new ATMs(atmsNames[i],1000,2000,5000,ATMPos[i]);
                         atms.add(atm);
-                        AgentController atmController = this.container.acceptNewAgent(atmName,atm);
+                        AgentController atmController = this.container.acceptNewAgent(atmsNames[i],atm);
                         atmController.start();
                     }
 
@@ -128,12 +154,14 @@ public class NationalBank {
     }
 
     private void createAgents() throws StaleProxyException, InterruptedException {
+
+
         //10,100,new Position(2,2)
         String companiesNames[] = {
-                "sibs",
-                "banco de portugal",
-                "novo banco",
-                "montepio"
+                "1",
+                "2",
+                "3",
+                "4"
         };
         Integer aggressiveness[] = {
                 10,
@@ -141,6 +169,24 @@ public class NationalBank {
                 30,
                 40,
         };
+
+        Position ATMPos[] = {
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+        };
+        Position CompaniesPos[] = {
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+        };
+
+
+          MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
+          AgentController printerController = this.container.acceptNewAgent("printer",printer);
+          printerController.start();
 
         Random random = new Random();
 
@@ -155,7 +201,7 @@ public class NationalBank {
             Integer workerNumber = 0;
 
             String workerName = companyName + "-worker-" + workerNumber++;
-            Workers worker = new Workers(workerName,companyName,new Position(),500, company.headQuarters);
+            Workers worker = new Workers(workerName,companyName,new Position(),8000, company.headQuarters);
             AgentController workerController = this.container.acceptNewAgent(workerName,worker);
             workerController.start();
 
@@ -175,7 +221,7 @@ public class NationalBank {
         ArrayList<ATMs> atms = new ArrayList<>();
 
         for (String atmName:atmsNames) {
-            ATMs atm = new ATMs(atmName,500,500,5000,new Position());
+            ATMs atm = new ATMs(atmName,1000,2000,5000,new Position());
             atms.add(atm);
             AgentController atmController = this.container.acceptNewAgent(atmName,atm);
             atmController.start();
@@ -187,7 +233,7 @@ public class NationalBank {
         AgentController clientController = this.container.acceptNewAgent("client1",client1);
         clientController.start();
 
-        Clients client2 = new Clients("client2",200,500,atms.get(0).position);
+        Clients client2 = new Clients("client2",500,1000,atms.get(1).position);
         clientController = this.container.acceptNewAgent("client2",client2);
         clientController.start();
 
