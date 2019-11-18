@@ -4,7 +4,6 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import jdk.jshell.execution.Util;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,6 +17,8 @@ public class Companies extends Agent {
     private YellowPagesMiddleware yellowPagesMiddleware;
     //List of ATMs that belong to the company
     //private AID[] ATMs;
+
+    public Position headQuarters = new Position();
 
     public Companies(String id){
         this.id=id;
@@ -113,11 +114,10 @@ public class Companies extends Agent {
                     ACLMessage workersReply = myAgent.receive(mtCompany);
 
                     if(workersReply != null){
-                        AID worker = workersReply.getSender();
-                        Position workerPosition = new Position(workersReply.getContent());
-
                         if(workersReply.getPerformative() == ACLMessage.CONFIRM){
                             System.out.println("Received confirm from worker to refill atm");
+                            AID worker = workersReply.getSender();
+                            Position workerPosition = new Position(workersReply.getContent());
                             workersAvailable.put(worker,workerPosition);
                         }else if(workersReply.getPerformative() == ACLMessage.CANCEL){
                             negativeRsp++;
