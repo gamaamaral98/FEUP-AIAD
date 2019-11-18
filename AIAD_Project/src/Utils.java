@@ -5,6 +5,11 @@ import jade.lang.acl.ACLMessage;
 
 public class Utils {
 
+    public static Integer mapSizeX = 10;
+    public static Integer mapSizeY = 100;
+
+    public static boolean debug = false;
+
     public static enum withdrawActions{
         NO_MONEY_ATM,
         NO_MONEY_CLIENT;

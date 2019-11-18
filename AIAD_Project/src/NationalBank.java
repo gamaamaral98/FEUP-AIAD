@@ -38,12 +38,14 @@ public class NationalBank {
     }
 
     private void createAgents() throws StaleProxyException, InterruptedException {
+
+
         //10,100,new Position(2,2)
         String companiesNames[] = {
-                "sibs",
-                "banco de portugal",
-                "novo banco",
-                "montepio"
+                "1",
+                "2",
+                "3",
+                "4"
         };
         Integer aggressiveness[] = {
                 10,
@@ -51,6 +53,24 @@ public class NationalBank {
                 30,
                 40,
         };
+
+        Position ATMPos[] = {
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+        };
+        Position CompaniesPos[] = {
+                new Position(),
+                new Position(),
+                new Position(),
+                new Position(),
+        };
+
+
+        MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
+        AgentController printerController = this.container.acceptNewAgent("printer",printer);
+        printerController.start();
 
         Random random = new Random();
 
