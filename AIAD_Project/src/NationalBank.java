@@ -89,7 +89,7 @@ public class NationalBank {
                     for (int i = 0; i < companiesNames.length;i++) {
                         String companyName = companiesNames[i];
                         Integer agress = aggressiveness[i];
-                        Companies company = new Companies(companyName,20000,agress);
+                        Companies company = new Companies(companyName,20000,agress,CompaniesPos[i]);
                         AgentController companyController = this.container.acceptNewAgent(companyName,company);
                         companyController.start();
 
@@ -186,7 +186,7 @@ public class NationalBank {
                     for (int j = 0; j < companiesNames2.length;j++) {
                         String companyName = companiesNames2[j];
                         Integer agress = aggressiveness2[j];
-                        Companies company = new Companies(companyName,20000,agress);
+                        Companies company = new Companies(companyName,1000,agress, CompaniesPos2[j]);
                         AgentController companyController = this.container.acceptNewAgent(companyName,company);
                         companyController.start();
 
@@ -302,7 +302,7 @@ public class NationalBank {
         for (int i = 0; i < companiesNames.length;i++) {
             String companyName = companiesNames[i];
             Integer agress = aggressiveness[i];
-            Companies company = new Companies(companyName,20000,agress);
+            Companies company = new Companies(companyName,20000,agress,CompaniesPos[i]);
             AgentController companyController = this.container.acceptNewAgent(companyName,company);
             companyController.start();
 

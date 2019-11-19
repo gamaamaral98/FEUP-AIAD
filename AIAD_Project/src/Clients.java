@@ -90,7 +90,7 @@ public class Clients extends Agent {
 
         @Override
         protected void onTick() {
-            System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
+            if(Utils.debug)System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
 
             if(Utils.debug)System.out.println("Client-Agent " + getAID().getName() + " is trying to withdraw " + money.toString());
 

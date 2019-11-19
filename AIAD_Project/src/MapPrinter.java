@@ -6,16 +6,13 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class MapPrinter extends Agent {
 
     public YellowPagesMiddleware yellowPagesMiddleware;
-    Position atms[];
-    Position companies[];
+    ArrayList<Position> atms = new ArrayList<>();
+    ArrayList<Position> companies = new ArrayList<>();
 
     String baseMap[][] = new String[Utils.mapSizeX][Utils.mapSizeY];
     public ArrayList<String> workID = new ArrayList<>();
@@ -23,8 +20,8 @@ public class MapPrinter extends Agent {
     public HashMap<String,Position> workers = new HashMap<>();
 
     public MapPrinter(Position atms[],Position companies[]){
-        this.atms = atms;
-        this.companies = companies;
+        this.atms = new ArrayList<>(Arrays.asList(atms));
+        this.companies = new ArrayList<>(Arrays.asList(companies));
 
         for(Position atm:atms){
             this.baseMap[atm.getX()][atm.getY()] = "A";
@@ -34,7 +31,7 @@ public class MapPrinter extends Agent {
             this.baseMap[company.getX()][company.getY()] = "C";
         }
 
-
+        addBehaviour(new ReceiveBankrupt());
 
     }
 
@@ -48,7 +45,7 @@ public class MapPrinter extends Agent {
         //Register company to yellow pages
         this.yellowPagesMiddleware.register();
 
-        addBehaviour(new PrintMap(this,500));
+        addBehaviour(new PrintMap(this,1000));
         addBehaviour(new updateReceiver());
     }
 
@@ -61,6 +58,48 @@ public class MapPrinter extends Agent {
 
     }
 
+    public class ReceiveBankrupt extends CyclicBehaviour{
+
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchConversationId("bankrupt");
+            ACLMessage msg = myAgent.receive(mt);
+
+            if(msg != null){
+
+                if(msg.getContent().equals("worker")) {
+                    if(Utils.debug)System.out.println("Removed worker " + msg.getSender().getLocalName()+" from printer");
+                    workers.remove(msg.getSender().getLocalName());
+                }else {
+                    if(Utils.debug)System.out.println("Removed company " + msg.getSender().getLocalName()+ " from printer");
+                    companies.remove(new Position(msg.getContent()));
+                }
+
+                ((MapPrinter) myAgent).updateMap();
+
+            }else{
+                block();
+            }
+
+        }
+    }
+
+    private void updateMap() {
+
+
+        String baseMapNew[][] = new String[Utils.mapSizeX][Utils.mapSizeY];
+
+        for(Position atm:atms){
+            this.baseMap[atm.getX()][atm.getY()] = "A";
+        }
+
+        for(Position company:companies){
+            this.baseMap[company.getX()][company.getY()] = "C";
+        }
+
+        this.baseMap = baseMapNew;
+    }
+
     public class PrintMap extends TickerBehaviour{
 
         MapPrinter printer = (MapPrinter) myAgent;
@@ -71,6 +110,7 @@ public class MapPrinter extends Agent {
 
         @Override
         protected void onTick() {
+            System.out.println(printer.companies);
             String map[][] = ((MapPrinter) myAgent).baseMap.clone();
             for(Position atm:printer.atms){
                 map[atm.getX()][atm.getY()] = "A";
@@ -84,13 +124,19 @@ public class MapPrinter extends Agent {
 
             for(int i = 0; i < map.length;i++){
                 for(int j=0; j < map[i].length;j++){
-                    if(workers.containsValue(new Position(i,j))) {
+                    Position current = new Position(i,j);
+                    if(companies.contains(current)){
+                        System.out.print("C");
+                    }
+                    else if(atms.contains(current)){
+                        System.out.print("A");
+                    }
+                    else if(workers.containsValue(current)) {
                         System.out.print("W");
                     }
-                    else if (map[i][j] == null) {
+                    else {
                         System.out.print("_");
-                    }else
-                        System.out.print(map[i][j]);
+                    }
 
                 }
                 System.out.println("\n");

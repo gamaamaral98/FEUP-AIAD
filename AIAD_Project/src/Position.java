@@ -9,6 +9,10 @@ public class Position {
         this.x = x;
         this.y = y;
     }
+    public Position(Position pos){
+        this.x=pos.getX();
+        this.y= pos.getY();
+    }
 
     public Position(String[] split){
         this.x =Integer.parseInt(split[0]);

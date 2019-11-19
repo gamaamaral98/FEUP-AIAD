@@ -8,6 +8,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
 import java.lang.Thread.*;
@@ -40,11 +41,12 @@ public class Workers extends Agent {
     private Boolean occupied = false;
 
     public Workers(String workerName, String companyName, Position position, Integer moneyAvailable, Position pos){
-        this.position =position;
+        this.position =new Position(position);
         this.company = new AID(companyName,AID.ISLOCALNAME);
         this.moneyAvailable = moneyAvailable;
-        this.headQuarters = pos;
-        this.destiny = position;
+        this.headQuarters = new Position(pos);
+        this.destiny = new Position(position);
+
     }
 
     protected void setup() {
@@ -59,6 +61,7 @@ public class Workers extends Agent {
         addBehaviour(new registerToCompanyBehaviour());
         addBehaviour(new refillATMBehaviour());
         addBehaviour(new UpdatePrinter(this,500));
+        addBehaviour(new ReceiveBankrupt());
         if(Utils.debug)System.out.println("Created worker: " + this.toString());
     }
 
@@ -76,6 +79,33 @@ public class Workers extends Agent {
 
     private void alertCompany() {
         Utils.sendRequest(this,ACLMessage.CANCEL,"register-worker",company,"");
+    }
+
+    public class ReceiveBankrupt extends CyclicBehaviour{
+
+
+        @Override
+        public void action() {
+
+            Workers worker = (Workers) myAgent;
+
+            MessageTemplate mt = MessageTemplate.MatchConversationId("bankrupt");
+            ACLMessage msg = myAgent.receive(mt);
+
+            if(msg != null){
+
+
+                AID mapPrinter = worker.yellowPagesMiddleware.getAgentList("printer")[0];
+
+                Utils.sendRequest(myAgent,ACLMessage.PROPAGATE,"bankrupt",mapPrinter,"worker");
+
+                myAgent.doDelete();
+
+            }else{
+                block();
+            }
+
+        }
     }
 
     @Override

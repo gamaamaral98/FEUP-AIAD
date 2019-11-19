@@ -14,17 +14,19 @@ public class Companies extends Agent {
     public Integer money ;
     public String id;
     //List of workers
-    private HashMap<AID,WorkerInfo> workers = new HashMap<>();
+    public HashMap<AID,WorkerInfo> workers = new HashMap<>();
     private YellowPagesMiddleware yellowPagesMiddleware;
     //List of ATMs that belong to the company
     //private AID[] ATMs;
     public Integer aggressiveness;
-    public Position headQuarters = new Position();
+    public Position headQuarters;
 
-    public Companies(String id, Integer money, Integer aggressiveness){
+    public Companies(String id, Integer money, Integer aggressiveness, Position headQuarters){
         this.id=id;
         this.money = money;
         this.aggressiveness = aggressiveness;
+        this.headQuarters = headQuarters;
+
     }
 
     protected void setup() {
@@ -67,6 +69,13 @@ public class Companies extends Agent {
     //Agent clean-up operations
     protected void takeDown(){
 
+        for(AID worker:this.workers.keySet()){
+            Utils.sendRequest(this,ACLMessage.PROPAGATE,"bankrupt",worker,"");
+        }
+
+        AID printer =  this.yellowPagesMiddleware.getAgentList("printer")[0];
+        Utils.sendRequest(this,ACLMessage.INFORM,"bankrupt",printer,this.headQuarters.toStringMsg());
+
         //Deregister from the yellow pages
         this.yellowPagesMiddleware.deregister();
 
@@ -93,10 +102,10 @@ public class Companies extends Agent {
             Companies company = (Companies) myAgent;
 
             if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + " with money=" + company.money);
-            company.money-= company.workers.size()*2;
+            company.money-= company.workers.size()*20;
             if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + "  with money=" + company.money);
             if(company.money < 0){
-                if(Utils.debug)System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
+                System.out.println("Company " + company.getAID().getLocalName() + " went bankrupt with money=" + money);
                 company.doDelete();
             }
         }
@@ -292,7 +301,7 @@ public class Companies extends Agent {
         private Integer decide(Integer lastBid) {
             Companies company = (Companies) myAgent;
             Integer maxBid = (((Companies) myAgent).money*20/100)*(100+ company.aggressiveness)/100;
-            System.out.println(myAgent.getName()+" max bid: " + maxBid);
+            if(Utils.debug)System.out.println(myAgent.getName()+" max bid: " + maxBid);
 
             if(lastBid< maxBid){
                 return Math.min(maxBid,lastBid+100);
@@ -307,12 +316,14 @@ public class Companies extends Agent {
         Integer step = 0;
         AID bestCompanyProposalAID;
         Integer bestBid;
+        Integer tries= 0;
 
         public AuctionATM(Agent a, long period, AID atmAID) {
             super(a, period);
             this.atmAID = atmAID;
             this.bestBid = 0;
             this.bestCompanyProposalAID = myAgent.getAID();
+
         }
 
         @Override
@@ -323,7 +334,7 @@ public class Companies extends Agent {
                     Companies company = (Companies) myAgent;
                     ArrayList<AID> companies =new ArrayList<AID>(Arrays.asList(company.yellowPagesMiddleware.getAgentList("company")));
                     companies.remove(myAgent.getAID());
-                    if(Utils.debug)if(Utils.debug)System.out.println("Found " + companies.size() + " companies to auction atm " + atmAID.getLocalName() + " which was from " + myAgent.getAID().getLocalName());
+                    if(Utils.debug)System.out.println("Found " + companies.size() + " companies to auction atm " + atmAID.getLocalName() + " which was from " + myAgent.getAID().getLocalName());
 
                     for(AID companyAID:companies){
                        Utils.sendRequest(myAgent,ACLMessage.CFP,"initiate-auction",companyAID,atmAID.getLocalName());
@@ -343,20 +354,22 @@ public class Companies extends Agent {
                                     Utils.sendRequest(myAgent,ACLMessage.REJECT_PROPOSAL,"auction-response",bestCompanyProposalAID,bid.toString());
                                 bestBid = bid;
                                 bestCompanyProposalAID = companyProposal.getSender();
-                                if(Utils.debug)if(Utils.debug)System.out.println("Received new best proposal from " + bestCompanyProposalAID.getLocalName() + " with value " + bestBid);
+                                if(Utils.debug)System.out.println("Received new best proposal from " + bestCompanyProposalAID.getLocalName() + " with value " + bestBid);
                             }else{
-                                if(Utils.debug)if(Utils.debug)System.out.println("Sending reject proposal to " + companyProposal.getSender().getLocalName());
+                                if(Utils.debug)System.out.println("Sending reject proposal to " + companyProposal.getSender().getLocalName());
                                 Utils.sendRequest(myAgent,ACLMessage.REJECT_PROPOSAL,"auction-response",companyProposal.getSender(),bestBid.toString());
                             }
                         }
-                    }else{
+                        tries=0;
+                    }else if(tries >20){
                         Utils.sendRequest(myAgent,ACLMessage.ACCEPT_PROPOSAL,"auction-response",bestCompanyProposalAID,bestBid.toString());
-                        if(Utils.debug)System.out.println("Ended auction giving atm " + atmAID.getLocalName() + " to " + bestCompanyProposalAID.getLocalName());
+                        System.out.println("Ended auction giving atm " + atmAID.getLocalName() + " to " + bestCompanyProposalAID.getLocalName() +" for " + bestBid);
                         this.stop();
                     }
                     break;
 
             }
+            tries++;
         }
     }
 
@@ -370,7 +383,7 @@ public class Companies extends Agent {
         }
 
         protected void onWake(){
-            addBehaviour(new AuctionATM(myAgent,Utils.MILLISSECONDS/2,atmAID));
+            addBehaviour(new AuctionATM(myAgent,5,atmAID));
         }
 
 

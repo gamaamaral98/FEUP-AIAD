@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15af5b41-032f-46d7-b9e2-8145f1f285bd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/MapPrinter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jade1.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/APDescription.txt" beforeDir="false" afterPath="$PROJECT_DIR$/APDescription.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$ATMStepBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$GetInitialProposalsBehaviour.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/AIAD_Project/ATMs$InitialCompanyBehaviour.class" afterDir="false" />
@@ -24,6 +25,7 @@
       <change beforePath="$PROJECT_DIR$/src/ATMs.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ATMs.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Clients.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Clients.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Companies.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Companies.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MapPrinter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MapPrinter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/NationalBank.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/NationalBank.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Position.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Utils.java" afterDir="false" />
@@ -52,7 +54,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/jade.jar!/" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
@@ -134,12 +136,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/Workers.java</url>
-          <line>94</line>
+          <line>124</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/Companies.java</url>
-          <line>90</line>
+          <line>100</line>
           <properties class="Companies.RemoveMoney">
             <option name="EMULATED" value="true" />
           </properties>
