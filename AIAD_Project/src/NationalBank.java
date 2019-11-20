@@ -145,7 +145,7 @@ public class NationalBank {
                     }
                     break;
                 case 2:
-                    String companiesNames2[] = {
+                     String companiesNames2[] = {
                             "sibs",
                             "banco de portugal",
                             "novo banco",
@@ -253,6 +253,126 @@ public class NationalBank {
                         j++;
                     }
 
+                case 3:
+                    String companiesNames3[] = {
+                            "sibs",
+                            "banco de portugal",
+                            "novo banco",
+                            "montepio"
+                    };
+
+                    Integer aggressiveness3[] = {
+                            10,
+                            10,
+                            10,
+                            10,
+                    };
+
+                    Position CompaniesPos3[] = {
+                            new Position(2,5),
+                            new Position(8,5),
+                            new Position(2,13),
+                            new Position(8,13),
+                    };
+
+                    Position ATMPos3[] = {
+                            new Position(2,4),
+                            new Position(8,4),
+                            new Position(2,14),
+                            new Position(8,14),
+                    };
+
+                    MapPrinter printer3 = new MapPrinter(ATMPos3,CompaniesPos3);
+                    AgentController printerController3 = this.container.acceptNewAgent("printer",printer3);
+                    printerController3.start();
+
+                    sleep(1000);
+
+                    for (int k = 0; k < companiesNames3.length;k++) {
+                        String companyName = companiesNames3[k];
+                        Integer agress = aggressiveness3[k];
+                        Companies company = new Companies(companyName,1000,agress, CompaniesPos3[k]);
+                        AgentController companyController = this.container.acceptNewAgent(companyName,company);
+                        companyController.start();
+
+                        Integer workerNumber = 0;
+
+                        String workerName = companyName + "-worker-" + workerNumber++;
+                        Workers worker = new Workers(workerName,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController workerController = this.container.acceptNewAgent(workerName,worker);
+                        workerController.start();
+
+                        String worker2Name = companyName + "-worker-" + workerNumber++;
+                        Workers worker2 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
+                        AgentController worker2Controller = this.container.acceptNewAgent(worker2Name,worker2);
+                        worker2Controller.start();
+
+                        if(k == companiesNames3.length-1){
+                            String worker3Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker3 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker3Controller = this.container.acceptNewAgent(worker3Name,worker3);
+                            worker3Controller.start();
+
+                            String worker4Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker4 = new Workers(worker4Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker4Controller = this.container.acceptNewAgent(worker4Name,worker4);
+                            worker4Controller.start();
+
+                            String worker5Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker5 = new Workers(worker5Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker5Controller = this.container.acceptNewAgent(worker5Name,worker5);
+                            worker5Controller.start();
+
+                            String worker6Name = companyName + "-worker-" + workerNumber++;
+                            Workers worker6 = new Workers(worker6Name,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController worker6Controller = this.container.acceptNewAgent(worker6Name,worker6);
+                            worker6Controller.start();
+                        }
+                    }
+
+                    String atmsNames3[] = {
+                            "feup",
+                            "sao joao",
+                            "aliados",
+                            "sao bento",
+                    };
+
+                    sleep(1000);
+
+                    ArrayList<ATMs> atms3 = new ArrayList<>();
+
+                    for (int k = 0; k < atmsNames3.length; k++) {
+                        ATMs atm = new ATMs(atmsNames3[k],1000,2000,5000,ATMPos3[k]);
+                        atms3.add(atm);
+                        AgentController atmController = this.container.acceptNewAgent(atmsNames3[k],atm);
+                        atmController.start();
+                    }
+
+                    sleep(1000);
+
+                    Random random3 = new Random();
+                    int k = 0;
+                    while (k<atmsNames3.length){
+                        Clients client1 = new Clients("client1."+k,random3.nextInt(250)+750,1000,atms3.get(k).position);
+                        AgentController clientController = this.container.acceptNewAgent("client1."+k,client1);
+                        clientController.start();
+
+                        Clients client2 = new Clients("client2."+k,random3.nextInt(250)+750,1000,atms3.get(k).position);
+                        clientController = this.container.acceptNewAgent("client2."+k,client2);
+                        clientController.start();
+
+                        if(k == atmsNames3.length-1){
+                            Clients client3 = new Clients("client3."+k,random3.nextInt(250)+750,1000,atms3.get(k).position);
+                            clientController = this.container.acceptNewAgent("client3."+k,client3);
+                            clientController.start();
+
+                            Clients client4 = new Clients("client4."+k,random3.nextInt(250)+750,1000,atms3.get(k).position);
+                            clientController = this.container.acceptNewAgent("client4."+k,client4);
+                            clientController.start();
+                        }
+
+                        k++;
+                    }
 
             }
         } catch (StaleProxyException | InterruptedException e) {
