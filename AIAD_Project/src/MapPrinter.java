@@ -6,6 +6,9 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class MapPrinter extends Agent {
@@ -85,7 +88,6 @@ public class MapPrinter extends Agent {
     }
 
     private void updateMap() {
-
 
         String baseMapNew[][] = new String[Utils.mapSizeX][Utils.mapSizeY];
 

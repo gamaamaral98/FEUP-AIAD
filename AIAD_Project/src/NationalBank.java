@@ -1,12 +1,10 @@
-import jade.core.AID;
-import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
-import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -17,6 +15,7 @@ public class NationalBank {
     public AgentContainer container;
     public ProfileImpl profile;
     public Runtime jade ;
+    public ArrayList<Companies> companiesLogs = new ArrayList<>();
 
     public NationalBank(){
         //Get jade runtime
@@ -38,12 +37,37 @@ public class NationalBank {
 
     }
 
-    public NationalBank(int cenario){
+    public void writeToFile(String str) throws IOException {
+        File file = new File ("./data.csv");
+        FileWriter writer;
+
+        if (file.exists()){
+            writer = new FileWriter(file.getPath(),true);
+        }
+        else{
+            file.createNewFile();
+            writer = new FileWriter(file);
+        }
+
+        PrintWriter printWriter = new PrintWriter(writer);
+
+        if(str.equals("")){
+            printWriter.print("CompanyID, Bankrupt, Income, Aggressiveness, NumberOfWorkers, NumberOfClients");
+        }else{
+            printWriter.append('\n');
+            writer.append(str);
+        }
+        printWriter.close();
+    }
+
+    public NationalBank(int cenario) throws IOException {
         this.jade = Runtime.instance();
 
         this.profile = new ProfileImpl(true);
 
         this.container = jade.createMainContainer(this.profile);
+
+        this.writeToFile("");
 
         try {
             switch (cenario){
@@ -53,13 +77,6 @@ public class NationalBank {
                             "banco de portugal",
                             "novo banco",
                             "montepio"
-                    };
-
-                    Integer aggressiveness[] = {
-                            40,
-                            10,
-                            10,
-                            10,
                     };
 
                     Position CompaniesPos[] = {
@@ -87,23 +104,39 @@ public class NationalBank {
                     sleep(1000);
 
                     for (int i = 0; i < companiesNames.length;i++) {
+
+                        String log = "";
+                        Random random = new Random();
+
                         String companyName = companiesNames[i];
-                        Integer agress = aggressiveness[i];
-                        Companies company = new Companies(companyName,20000,agress,CompaniesPos[i]);
+                        log += companyName + ", " +  "false, ";
+
+                        Integer money = 100 + random.nextInt(20000);
+                        log += money.toString() + ", ";
+
+                        Integer agress = random.nextInt(50) + 1;
+                        log += agress.toString() + ", ";
+
+                        Companies company = new Companies(companyName, money, agress, CompaniesPos[i]);
+
                         AgentController companyController = this.container.acceptNewAgent(companyName,company);
+                        companiesLogs.add(company);
                         companyController.start();
 
                         Integer workerNumber = 0;
 
-                        String workerName = companyName + "-worker-" + workerNumber++;
-                        Workers worker = new Workers(workerName,companyName,company.headQuarters,500, company.headQuarters);
-                        AgentController workerController = this.container.acceptNewAgent(workerName,worker);
-                        workerController.start();
+                        for(int j = 0; j < 1 + random.nextInt(10); j++){
+                            String workerName = companyName + "-worker-" + workerNumber++;
+                            Workers worker = new Workers(workerName,companyName,company.headQuarters,500, company.headQuarters);
+                            AgentController workerController = this.container.acceptNewAgent(workerName,worker);
+                            workerController.start();
+                        }
 
-                        String worker2Name = companyName + "-worker-" + workerNumber++;
-                        Workers worker2 = new Workers(worker2Name,companyName,company.headQuarters,500, company.headQuarters);
-                        AgentController worker2Controller = this.container.acceptNewAgent(worker2Name,worker2);
-                        worker2Controller.start();
+                        //Number of clients hardcoded for 2, maybe change later or not
+                        log += workerNumber.toString() + ", " + "2";
+
+                        //this.writeToFile(log);
+
                     }
 
                     String atmsNames[] = {
@@ -143,6 +176,9 @@ public class NationalBank {
 
                         i++;
                     }
+
+                    Thread check = new Thread(new checkBankrupcy());
+                    check.start();
                     break;
                 case 2:
                      String companiesNames2[] = {
@@ -253,7 +289,7 @@ public class NationalBank {
                         j++;
                     }
 
-                case 3:
+               /* case 3:
                     String companiesNames3[] = {
                             "sibs",
                             "banco de portugal",
@@ -372,13 +408,51 @@ public class NationalBank {
                         }
 
                         k++;
-                    }
+                    }*/
 
             }
         } catch (StaleProxyException | InterruptedException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public class checkBankrupcy implements Runnable{
+
+        @Override
+        public void run() {
+            Boolean exit = false;
+            while(!exit){
+                Integer count = 0, lastCompany = null;
+                for(int i = 0; i < companiesLogs.size(); i++){
+                    if(!companiesLogs.get(i).bankrupt){
+                        lastCompany = i;
+                    }else{
+                        count++;
+                    }
+                }
+                if(count == 3){
+                    String str = "";
+                    for(int i = 0; i < companiesLogs.size(); i++){
+                        str += companiesLogs.get(i).getLocalName() + ", "
+                                + companiesLogs.get(i).bankrupt.toString() + ", "
+                                + companiesLogs.get(i).money.toString() + ", "
+                                + companiesLogs.get(i).aggressiveness.toString() + ", "
+                                + companiesLogs.get(i).workers.size() + "2";
+
+                        if(i != 3) str += "\n";
+                    }
+
+                    try {
+                        writeToFile(str);
+                        exit = true;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
     }
 
     private void createAgents() throws StaleProxyException, InterruptedException {
@@ -414,7 +488,7 @@ public class NationalBank {
 
           MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
           AgentController printerController = this.container.acceptNewAgent("printer",printer);
-          printerController.start();
+          //printerController.start();
 
         Random random = new Random();
 
@@ -469,8 +543,8 @@ public class NationalBank {
 
     }
 
-    public static void main(String args[]){
-        NationalBank nationalBank = new NationalBank(2);
+    public static void main(String args[]) throws IOException {
+        NationalBank nationalBank = new NationalBank(1);
     }
 
 }

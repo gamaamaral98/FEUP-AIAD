@@ -21,12 +21,13 @@ public class Companies extends Agent {
     public Integer aggressiveness;
     public Position headQuarters;
 
+    Boolean bankrupt = false;
+
     public Companies(String id, Integer money, Integer aggressiveness, Position headQuarters){
-        this.id=id;
+        this.id = id;
         this.money = money;
         this.aggressiveness = aggressiveness;
         this.headQuarters = headQuarters;
-
     }
 
     protected void setup() {
@@ -70,6 +71,7 @@ public class Companies extends Agent {
     protected void takeDown(){
 
         for(AID worker:this.workers.keySet()){
+            bankrupt = true;
             Utils.sendRequest(this,ACLMessage.PROPAGATE,"bankrupt",worker,"");
         }
 
