@@ -122,26 +122,26 @@ public class MapPrinter extends Agent {
                 map[company.getX()][company.getY()] = "C";
             }
 
-            System.out.println("\n\n");
+            //System.out.println("\n\n");
 
             for(int i = 0; i < map.length;i++){
                 for(int j=0; j < map[i].length;j++){
                     Position current = new Position(i,j);
                     if(companies.contains(current)){
-                        System.out.print("C");
+                        //System.out.print("C");
                     }
                     else if(atms.contains(current)){
-                        System.out.print("A");
+                        //System.out.print("A");
                     }
                     else if(workers.containsValue(current)) {
-                        System.out.print("W");
+                        //System.out.print("W");
                     }
                     else {
-                        System.out.print("_");
+                        //System.out.print("_");
                     }
 
                 }
-                System.out.println("\n");
+                //System.out.println("\n");
             }
         }
     }
