@@ -7,6 +7,7 @@ import javafx.concurrent.Worker;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
 
 import static java.lang.Thread.sleep;
@@ -38,9 +39,12 @@ public class NationalBank {
 
         PrintWriter printWriter = new PrintWriter(writer);
 
-        writer.append(str);
-        printWriter.append('\n');
-
+        if(str.equals("")){
+            printWriter.print("CompanyID, Bankrupt, Income, Aggressiveness, NumberOfWorkers, NumberOfClients");
+        }else{
+            printWriter.append('\n');
+            writer.append(str);
+        }
         printWriter.close();
     }
 
@@ -49,7 +53,10 @@ public class NationalBank {
         while(true){
 
             if(reset){
-                System.out.println("entrei");
+
+                for(int i = 0; i < mapsLogs.size(); i++){
+                    mapsLogs.get(i).doDelete();
+                }
                 for(int i = 0; i < companiesLogs.size(); i++){
                     companiesLogs.get(i).doDelete();
                 }
@@ -61,9 +68,6 @@ public class NationalBank {
                 }
                 for(int i = 0; i < clientsLogs.size(); i++){
                     clientsLogs.get(i).doDelete();
-                }
-                for(int i = 0; i < mapsLogs.size(); i++){
-                    mapsLogs.get(i).doDelete();
                 }
                 if(container != null) container.kill();
 
@@ -103,7 +107,6 @@ public class NationalBank {
 
                     MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
                     mapsLogs.add(printer);
-
                     AgentController printerController = this.container.acceptNewAgent("printer",printer);
                     printerController.start();
                     agentControllers.add(printerController);
