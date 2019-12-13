@@ -20,7 +20,9 @@ public class NationalBank {
     public ArrayList<Clients> clientsLogs = new ArrayList<>();
     public ArrayList<Workers> workersLogs = new ArrayList<>();
     public ArrayList<ATMs> atmsLogs = new ArrayList<>();
+    public ArrayList<MapPrinter> mapsLogs = new ArrayList<>();
     public ArrayList<AgentController> agentControllers = new ArrayList<>();
+    public Boolean reset = true;
 
     public static void writeToFile(String str) throws IOException {
         File file = new File ("./data.csv");
@@ -36,23 +38,44 @@ public class NationalBank {
 
         PrintWriter printWriter = new PrintWriter(writer);
 
-        if(str.equals("")){
-            printWriter.print("CompanyID, Bankrupt, Income, Aggressiveness, NumberOfWorkers, NumberOfClients");
-        }else{
-            printWriter.append('\n');
-            writer.append(str);
-        }
+        writer.append(str);
+        printWriter.append('\n');
+
         printWriter.close();
     }
 
-    public NationalBank(int scenario) throws IOException {
-        this.jade = Runtime.instance();
+    public void runNationalBank() throws InterruptedException, StaleProxyException {
 
-        this.profile = new ProfileImpl(true);
+        while(true){
 
-        this.container = jade.createMainContainer(this.profile);
+            if(reset){
+                System.out.println("entrei");
+                for(int i = 0; i < companiesLogs.size(); i++){
+                    companiesLogs.get(i).doDelete();
+                }
+                for(int i = 0; i < workersLogs.size(); i++){
+                    workersLogs.get(i).doDelete();
+                }
+                for(int i = 0; i < atmsLogs.size(); i++){
+                    atmsLogs.get(i).doDelete();
+                }
+                for(int i = 0; i < clientsLogs.size(); i++){
+                    clientsLogs.get(i).doDelete();
+                }
+                for(int i = 0; i < mapsLogs.size(); i++){
+                    mapsLogs.get(i).doDelete();
+                }
+                if(container != null) container.kill();
 
-        try {
+                reset = false;
+
+                this.jade = Runtime.instance();
+
+                this.profile = new ProfileImpl(true);
+
+                this.container = jade.createMainContainer(this.profile);
+
+                try {
                     String companiesNames[] = {
                             "sibs",
                             "banco de portugal",
@@ -79,6 +102,8 @@ public class NationalBank {
                     };
 
                     MapPrinter printer = new MapPrinter(ATMPos,CompaniesPos);
+                    mapsLogs.add(printer);
+
                     AgentController printerController = this.container.acceptNewAgent("printer",printer);
                     printerController.start();
                     agentControllers.add(printerController);
@@ -169,10 +194,16 @@ public class NationalBank {
                     Thread check = new Thread(new checkBankrupcy());
                     check.start();
 
-        } catch (StaleProxyException | InterruptedException e) {
-            e.printStackTrace();
+                } catch (StaleProxyException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            sleep(100);
         }
+    }
 
+    public NationalBank(int scenario) throws IOException, InterruptedException, StaleProxyException {
+        runNationalBank();
     }
 
     public class checkBankrupcy implements Runnable{
@@ -204,26 +235,9 @@ public class NationalBank {
 
                     try {
                         writeToFile(str);
-
-                        for(int i = 0; i < companiesLogs.size(); i++){
-                            companiesLogs.get(i).takeDown();
-                        }
-                        for(int i = 0; i < workersLogs.size(); i++){
-                            workersLogs.get(i).takeDown();
-                        }
-                        for(int i = 0; i < atmsLogs.size(); i++){
-                            atmsLogs.get(i).takeDown();
-                        }
-                        for(int i = 0; i < clientsLogs.size(); i++){
-                            clientsLogs.get(i).takeDown();
-                        }
-                        for(int i = 0; i < agentControllers.size(); i++){
-                            agentControllers.get(i).suspend();
-                        }
-
-                        //NationalBank nationalBank = new NationalBank(1);
+                        reset = true;
                         exit = true;
-                    } catch (IOException | StaleProxyException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -231,7 +245,7 @@ public class NationalBank {
         }
     }
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, StaleProxyException, InterruptedException {
         writeToFile("");
         NationalBank nationalBank = new NationalBank(1);
     }

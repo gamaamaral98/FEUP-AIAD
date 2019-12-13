@@ -5,7 +5,7 @@ import jade.lang.acl.ACLMessage;
 
 public class Utils {
 
-    public static int MILLISSECONDS = 500;
+    public static int MILLISSECONDS = 5;
 
     public static Integer mapSizeX = 10;
     public static Integer mapSizeY = 100;
