@@ -21,7 +21,7 @@ public class Companies extends Agent {
     public Integer aggressiveness;
     public Position headQuarters;
 
-    Boolean bankrupt = false;
+    public Boolean bankrupt = false;
 
     public Companies(String id, Integer money, Integer aggressiveness, Position headQuarters){
         this.id = id;

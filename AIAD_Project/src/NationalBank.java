@@ -3,7 +3,7 @@ import jade.core.Runtime;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import javafx.concurrent.Worker;
+
 
 import java.io.*;
 import java.util.ArrayList;
@@ -47,25 +47,33 @@ public class NationalBank {
     public void runNationalBank() throws InterruptedException, StaleProxyException {
 
         while(true){
-
+            System.out.println("In whiletrye");
             if(reset){
-                System.out.println("entrei");
-                for(int i = 0; i < companiesLogs.size(); i++){
-                    companiesLogs.get(i).doDelete();
+                System.out.println("yo");
+                if(container != null) {
+                    System.out.println("entrei");
+                    for(int i = 0; i < companiesLogs.size(); i++){
+                        companiesLogs.get(i).doDelete();
+                    }
+                    for(int i = 0; i < workersLogs.size(); i++){
+                        workersLogs.get(i).doDelete();
+                    }
+                    for(int i = 0; i < atmsLogs.size(); i++){
+                        atmsLogs.get(i).doDelete();
+                    }
+                    for(int i = 0; i < clientsLogs.size(); i++){
+                        clientsLogs.get(i).doDelete();
+                    }
+                    for(int i = 0; i < mapsLogs.size(); i++){
+                        mapsLogs.get(i).doDelete();
+                    }
+
+                    companiesLogs = new ArrayList<>();
+
+                    container.kill();
+                    jade.shutDown();
+
                 }
-                for(int i = 0; i < workersLogs.size(); i++){
-                    workersLogs.get(i).doDelete();
-                }
-                for(int i = 0; i < atmsLogs.size(); i++){
-                    atmsLogs.get(i).doDelete();
-                }
-                for(int i = 0; i < clientsLogs.size(); i++){
-                    clientsLogs.get(i).doDelete();
-                }
-                for(int i = 0; i < mapsLogs.size(); i++){
-                    mapsLogs.get(i).doDelete();
-                }
-                if(container != null) container.kill();
 
                 reset = false;
 
@@ -74,7 +82,8 @@ public class NationalBank {
                 this.profile = new ProfileImpl(true);
 
                 this.container = jade.createMainContainer(this.profile);
-
+                Thread check = new Thread(new checkBankrupcy());
+                check.start();
                 try {
                     String companiesNames[] = {
                             "sibs",
@@ -191,8 +200,7 @@ public class NationalBank {
                         i++;
                     }
 
-                    Thread check = new Thread(new checkBankrupcy());
-                    check.start();
+
 
                 } catch (StaleProxyException | InterruptedException e) {
                     e.printStackTrace();
@@ -210,8 +218,14 @@ public class NationalBank {
 
         @Override
         public void run() {
+            System.out.println("New threads");
             Boolean exit = false;
             while(!exit){
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Integer count = 0, lastCompany = null;
                 for(int i = 0; i < companiesLogs.size(); i++){
                     if(!companiesLogs.get(i).bankrupt){
@@ -220,6 +234,7 @@ public class NationalBank {
                         count++;
                     }
                 }
+                System.out.println(count);
                 if(count == 3){
                     String str = "";
                     for(int i = 0; i < companiesLogs.size(); i++){
@@ -236,6 +251,7 @@ public class NationalBank {
                     try {
                         writeToFile(str);
                         reset = true;
+                        System.out.println("Resetting " + reset);
                         exit = true;
                     } catch (IOException e) {
                         e.printStackTrace();
