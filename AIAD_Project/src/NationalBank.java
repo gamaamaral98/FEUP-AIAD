@@ -26,7 +26,7 @@ public class NationalBank {
     public Boolean reset = true;
 
     public static void writeToFile(String str) throws IOException {
-        File file = new File ("./data.csv");
+        File file = new File ("./newData.csv");
         FileWriter writer;
 
         if (file.exists()){
@@ -40,7 +40,7 @@ public class NationalBank {
         PrintWriter printWriter = new PrintWriter(writer);
 
         if(str.equals("")){
-            printWriter.print("CompanyID, Bankrupt, Income, Aggressiveness, NumberOfWorkers, NumberOfClients");
+            printWriter.print("Bankrupt, Income, Aggressiveness, NumberOfWorkers, NumberOfClients, InitialMoney");
         }else{
             printWriter.append('\n');
             writer.append(str);
@@ -51,11 +51,8 @@ public class NationalBank {
     public void runNationalBank() throws InterruptedException, StaleProxyException {
 
         while(true){
-            System.out.println("In whiletrye");
             if(reset){
-                System.out.println("yo");
                 if(container != null) {
-                    System.out.println("entrei");
                     for(int i = 0; i < companiesLogs.size(); i++){
                         companiesLogs.get(i).doDelete();
                     }
@@ -130,7 +127,7 @@ public class NationalBank {
                         String companyName = companiesNames[i];
                         log += companyName + ", " +  "false, ";
 
-                        Integer money = 100 + random.nextInt(20000);
+                        Integer money = 10000;
                         log += money.toString() + ", ";
 
                         Integer agress = random.nextInt(50) + 1;
@@ -138,6 +135,7 @@ public class NationalBank {
 
                         Companies company = new Companies(companyName, money, agress, CompaniesPos[i]);
                         companiesLogs.add(company);
+                        company.initialMoney = money;
 
                         AgentController companyController = this.container.acceptNewAgent(companyName,company);
                         agentControllers.add(companyController);
@@ -221,7 +219,6 @@ public class NationalBank {
 
         @Override
         public void run() {
-            System.out.println("New threads");
             Boolean exit = false;
             while(!exit){
                 try {
@@ -237,16 +234,14 @@ public class NationalBank {
                         count++;
                     }
                 }
-                System.out.println(count);
                 if(count == 3){
                     String str = "";
                     for(int i = 0; i < companiesLogs.size(); i++){
-                        str += companiesLogs.get(i).getLocalName() + ", "
-                                + companiesLogs.get(i).bankrupt.toString() + ", "
+                        str += companiesLogs.get(i).bankrupt.toString() + ", "
                                 + companiesLogs.get(i).money.toString() + ", "
                                 + companiesLogs.get(i).aggressiveness.toString() + ", "
                                 + companiesLogs.get(i).workers.size()
-                                + ", 2";
+                                + ", 2, " + companiesLogs.get(i).initialMoney.toString();
 
                         if(i != 3) str += "\n";
                     }
@@ -254,7 +249,6 @@ public class NationalBank {
                     try {
                         writeToFile(str);
                         reset = true;
-                        System.out.println("Resetting " + reset);
                         exit = true;
                     } catch (IOException e) {
                         e.printStackTrace();
